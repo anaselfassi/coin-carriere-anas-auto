@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr" oncontextmenu="return false;">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T5XT8CKG');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Carrière - Inscription Confirmée</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow: hidden; /* Pas de scroll sur cette page */
+            user-select: none;
+        }
+        .font-cairo { font-family: 'Cairo', sans-serif; }
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+            animation: morph 8s ease-in-out infinite alternate;
+        }
+        @keyframes morph {
+            0% { border-radius: 60% 40% 30% 70%/60% 30% 70% 40%; }
+            50% { border-radius: 30% 60% 70% 40%/50% 60% 30% 60%; }
+            100% { border-radius: 60% 40% 30% 70%/60% 30% 70% 40%; }
+        }
+    </style>
+</head>
+<body class="selection:bg-[#dcfe11] selection:text-[#0b3f59]">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T5XT8CKG"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div class="min-h-screen flex items-center justify-center px-4 bg-white font-montserrat relative overflow-hidden">
+        <!-- Blobs animés -->
+        <div class="blob bg-[#0094d9]/30 w-96 h-96 rounded-full top-0 left-0"></div>
+        <div class="blob bg-[#dcfe11]/30 w-80 h-80 rounded-full bottom-0 right-0"></div>
+
+        <div class="max-w-lg w-full bg-white/90 backdrop-blur-xl p-10 md:p-12 rounded-[2.5rem] shadow-2xl text-center relative z-10 border border-white animate-in zoom-in duration-500">
+            <div class="w-24 h-24 bg-[#dcfe11]/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner animate-bounce">
+                <i data-lucide="check-circle" class="w-12 h-12 text-[#0b3f59]"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0b3f59] mb-6 font-cairo">Félicitations ! 🎉</h1>
+            <p class="text-gray-600 mb-10 text-lg leading-relaxed font-medium">
+                Votre pré-inscription est validée. Vous recevrez très bientôt vos identifiants d'accès à la plateforme privée.
+            </p>
+            <div class="bg-blue-50 p-5 rounded-2xl mb-10 text-sm text-[#0b3f59] font-semibold flex items-center gap-4 text-left border border-blue-100">
+                <div class="bg-white p-2 rounded-full shadow-sm"><i data-lucide="mail" class="w-5 h-5 shrink-0 text-[#0094d9]"></i></div>
+                <span>Vérifiez vos emails (et spams). L'aventure commence.</span>
+            </div>
+            <button onclick="window.location.href='index.html'" class="w-full py-5 px-6 rounded-xl font-bold text-[#0b3f59] text-lg hover:shadow-xl bg-[#dcfe11] transition-all transform hover:-translate-y-1 active:scale-95">
+                Retour à l'accueil
+            </button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        // Protection
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "F12" || (e.ctrlKey && e.key === "u")) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
