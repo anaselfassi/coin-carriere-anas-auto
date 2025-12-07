@@ -231,6 +231,14 @@
 
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
+                    <!-- CHAMPS CACHÉS (Sans IDs pour éviter conflits avec le formulaire principal, mais présents pour le POST) -->
+                    <input type="hidden" name="field_ip" />
+                    <input type="hidden" name="field_city" />
+                    <input type="hidden" name="field_country" />
+                    <input type="hidden" name="field_device" />
+                    <input type="hidden" name="field_clarity" />
+                    <input type="hidden" name="field_source" value="Facebook" />
+
                     <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                     <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
                     <div class="grid grid-cols-2 gap-3">
@@ -506,6 +514,14 @@
                 <!-- Main Form (Aussi surveillé par le détecteur d'activité) -->
                 <div class="md:w-1/2 p-10 md:p-14 bg-white relative">
                     <form id="mainForm" onsubmit="handleFormSubmit(event)" class="space-y-5 popup-form-monitor">
+                        <!-- CHAMPS CACHÉS (Stricts IDs requis pour le script de tracking) -->
+                        <input type="hidden" id="field_ip" name="field_ip" />
+                        <input type="hidden" id="field_city" name="field_city" />
+                        <input type="hidden" id="field_country" name="field_country" />
+                        <input type="hidden" id="field_device" name="field_device" />
+                        <input type="hidden" id="field_clarity" name="field_clarity" />
+                        <input type="hidden" id="field_source" name="field_source" value="Facebook" />
+
                         <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                         <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
                         <div class="grid grid-cols-2 gap-4">
@@ -540,6 +556,29 @@
         <div class="flex justify-center mb-6 opacity-50 hover:opacity-100 transition-opacity"><img src="logo.png" alt="logo" class="h-8 brightness-0 invert" onerror="this.style.display='none'"></div>
         <p class="text-xs font-medium tracking-wide">&copy; 2024 Coin Carrière. Tous droits réservés.</p>
     </footer>
+
+    <!-- VIEW: CONFIRMATION (Simulée pour la démo, Cachée par défaut) -->
+    <div id="confirmation-view" class="hidden min-h-screen flex items-center justify-center px-4 bg-white font-montserrat relative overflow-hidden">
+        <div class="blob bg-blue-200 w-96 h-96 rounded-full top-0 left-0 animate-pulse"></div>
+        <div class="blob bg-lime-100 w-80 h-80 rounded-full bottom-0 right-0 animate-pulse" style="animation-delay: 1s"></div>
+
+        <div class="max-w-lg w-full bg-white/90 backdrop-blur-xl p-10 md:p-12 rounded-[2.5rem] shadow-2xl text-center relative z-10 border border-white animate-in zoom-in duration-500">
+            <div class="w-24 h-24 bg-[#dcfe11]/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                <i data-lucide="check-circle" class="w-12 h-12 text-[#0b3f59]"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0b3f59] mb-6 font-cairo">Félicitations ! 🎉</h1>
+            <p class="text-gray-600 mb-10 text-lg leading-relaxed font-medium">
+                Votre pré-inscription est validée. Vous recevrez très bientôt vos identifiants d'accès à la plateforme privée.
+            </p>
+            <div class="bg-blue-50 p-5 rounded-2xl mb-10 text-sm text-[#0b3f59] font-semibold flex items-center gap-4 text-left border border-blue-100">
+                <div class="bg-white p-2 rounded-full shadow-sm"><i data-lucide="mail" class="w-5 h-5 shrink-0 text-[#0094d9]"></i></div>
+                <span>Vérifiez vos emails (et spams). L'aventure commence.</span>
+            </div>
+            <button onclick="location.reload()" class="w-full py-5 px-6 rounded-xl font-bold text-[#0b3f59] text-lg hover:shadow-xl bg-[#dcfe11] transition-all transform hover:-translate-y-1 active:scale-95">
+                Retour à l'accueil
+            </button>
+        </div>
+    </div>
 
     <script>
         // Init Lucide Icons
@@ -584,9 +623,11 @@
 
         // Detecter l'état de la vidéo
         const videoElement = document.getElementById('heroVideo');
-        videoElement.addEventListener('play', () => { isVideoPlaying = true; });
-        videoElement.addEventListener('pause', () => { isVideoPlaying = false; });
-        videoElement.addEventListener('ended', () => { isVideoPlaying = false; });
+        if (videoElement) {
+            videoElement.addEventListener('play', () => { isVideoPlaying = true; });
+            videoElement.addEventListener('pause', () => { isVideoPlaying = false; });
+            videoElement.addEventListener('ended', () => { isVideoPlaying = false; });
+        }
 
         // Detecter l'activité sur les formulaires (Tous les inputs avec la classe .popup-form-monitor)
         const formInputs = document.querySelectorAll('.popup-form-monitor input');
@@ -610,11 +651,18 @@
                 // 1. Pas de vidéo en cours
                 // 2. Pas en train d'écrire dans un formulaire
                 // 3. Popup pas déjà affiché
-                // 4. N'a JAMAIS été affiché auparavant (hasPopupShown)
+                // 4. Pas sur la page de confirmation (si simulée)
+                // 5. N'a JAMAIS été affiché auparavant (hasPopupShown)
                 const popup = document.getElementById('popup');
+                const confirmationView = document.getElementById('confirmation-view');
+                
+                // Safe checks
+                if (!popup || !confirmationView) return;
+
+                const isConfirmationVisible = !confirmationView.classList.contains('hidden');
                 const isPopupVisible = popup.classList.contains('opacity-100');
 
-                if (!isVideoPlaying && !isFormActive && !isPopupVisible && !hasPopupShown) {
+                if (!isVideoPlaying && !isFormActive && !isPopupVisible && !isConfirmationVisible && !hasPopupShown) {
                     openPopup();
                     hasPopupShown = true; // Marquer comme affiché
                     clearInterval(popupInterval); // Arrêter le timer définitivement pour ne plus déranger
@@ -624,15 +672,19 @@
 
         function openPopup() {
             const popup = document.getElementById('popup');
-            popup.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-            popup.classList.add('opacity-100', 'visible');
-            popup.querySelector('.popup-content').classList.add('popup-animate');
+            if (popup) {
+                popup.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
+                popup.classList.add('opacity-100', 'visible');
+                popup.querySelector('.popup-content')?.classList.add('popup-animate');
+            }
         }
 
         function closePopup() {
             const popup = document.getElementById('popup');
-            popup.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-            popup.classList.remove('opacity-100', 'visible');
+            if (popup) {
+                popup.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+                popup.classList.remove('opacity-100', 'visible');
+            }
             // On ne relance PAS le timer ici, c'est fini pour cette session.
         }
 
@@ -640,18 +692,69 @@
         startPopupTimer();
 
 
-        // Form Handling with Redirect
+        // Form Handling with Webhook & Redirect Logic
         function handleFormSubmit(e) {
             e.preventDefault();
-            // Simulate processing
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Validation en cours...';
+            
+            const form = e.target;
+            const btn = form.querySelector('button[type="submit"]');
+            
+            // 1. Loading State
+            btn.innerHTML = 'Traitement en cours...';
             btn.disabled = true;
 
-            setTimeout(() => {
-                window.location.href = "thankyou.html";
-            }, 1500);
+            // 2. Prepare Data for Webhook
+            const formData = new FormData(form);
+            const data = {
+                fullName: formData.get('fullName'),
+                businessName: formData.get('centerName'),
+                city: formData.get('city'),
+                whatsappPhone: formData.get('phone'),
+                email: formData.get('email'),
+                source: "Landing Page",
+                ip: formData.get('field_ip') || '',
+                city_geo: formData.get('field_city') || '',
+                country: formData.get('field_country') || '',
+                device: formData.get('field_device') || '',
+                clarity_url: formData.get('field_clarity') || '',
+                traffic_source: formData.get('field_source') || 'Facebook'
+            };
+
+            // 3. Send to Make.com Webhook
+            fetch('https://hook.eu1.make.com/5orxv4r7zakxnr2ec0vmjw2py5n7p47j', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => {
+                if (res.ok) {
+                    console.log('Lead sent successfully');
+                } else {
+                    console.warn('Webhook returned error:', res.status);
+                }
+            })
+            .catch(err => {
+                console.warn('Webhook unreachable (CORS/Adblock):', err);
+            })
+            .finally(() => {
+                // 4. Redirection (After short delay)
+                setTimeout(() => {
+                    // --- VERSION PREVIEW (TEST MODE) ---
+                    const landingView = document.getElementById('landing-view');
+                    const confirmationView = document.getElementById('confirmation-view');
+                    if (landingView && confirmationView) {
+                        landingView.classList.add('hidden');
+                        confirmationView.classList.remove('hidden');
+                    }
+                    window.scrollTo(0, 0);
+
+                    // --- VERSION PRODUCTION (POUR VOTRE SITE REEL) ---
+                    // Supprimez les 6 lignes ci-dessus et décommentez la ligne ci-dessous :
+                    // window.location.href = "thankyou.html";
+                }, 1000);
+            });
         }
 
         // Generate Partners
@@ -681,7 +784,7 @@
             }
             lucide.createIcons(); // Re-run icons for dynamic content
         }
-        generateSlides();
+        if (track) generateSlides();
 
         // FAQ Generation
         const faqs = [
@@ -692,41 +795,74 @@
         ];
 
         const faqContainer = document.getElementById('faq-container');
-        faqs.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'faq-item border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 hover:bg-white transition-all duration-300 cursor-pointer hover:shadow-md group';
-            div.innerHTML = `
-                <button class="w-full p-6 flex justify-between items-center text-left" onclick="toggleFaq(this)">
-                    <span class="font-bold text-[#0b3f59] pr-4 text-lg group-hover:text-[#0094d9] transition-colors">${item.q}</span>
-                    <i data-lucide="chevron-down" class="faq-icon w-6 h-6 text-gray-400 group-hover:text-[#dcfe11]"></i>
-                </button>
-                <div class="faq-content bg-white">
-                    <div class="p-6 pt-0 text-gray-600 border-t border-gray-100/50 leading-relaxed">
-                        <p class="mt-4">${item.a}</p>
+        if (faqContainer) {
+            faqs.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'faq-item border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 hover:bg-white transition-all duration-300 cursor-pointer hover:shadow-md group';
+                div.innerHTML = `
+                    <button class="w-full p-6 flex justify-between items-center text-left" onclick="toggleFaq(this)">
+                        <span class="font-bold text-[#0b3f59] pr-4 text-lg group-hover:text-[#0094d9] transition-colors">${item.q}</span>
+                        <i data-lucide="chevron-down" class="faq-icon w-6 h-6 text-gray-400 group-hover:text-[#dcfe11]"></i>
+                    </button>
+                    <div class="faq-content bg-white">
+                        <div class="p-6 pt-0 text-gray-600 border-t border-gray-100/50 leading-relaxed">
+                            <p class="mt-4">${item.a}</p>
+                        </div>
                     </div>
-                </div>
-            `;
-            faqContainer.appendChild(div);
-        });
+                `;
+                faqContainer.appendChild(div);
+            });
+        }
         
         function toggleFaq(btn) {
             const item = btn.parentElement;
             const isActive = item.classList.contains('active');
             
-            // Close all
             document.querySelectorAll('.faq-item').forEach(el => {
                 el.classList.remove('active');
             });
 
-            // Toggle clicked
             if (!isActive) {
                 item.classList.add('active');
             }
             lucide.createIcons();
         }
         
-        // Re-run icons one last time to be sure
         lucide.createIcons();
+
+        // --- TRACKING DATA INJECTION ---
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Get Geo-Data (IP, City, Country) using ipapi
+            fetch("https://ipapi.co/json/")
+            .then(response => response.json())
+            .then(data => {
+                if(document.getElementById("field_ip")) document.getElementById("field_ip").value = data.ip;
+                if(document.getElementById("field_city")) document.getElementById("field_city").value = data.city;
+                if(document.getElementById("field_country")) document.getElementById("field_country").value = data.country_name;
+            })
+            .catch(error => console.log('Geo-data fetch error:', error));
+
+            // 2. Get Device Info
+            if(document.getElementById("field_device")) {
+                var deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
+                document.getElementById("field_device").value = deviceType + " (" + navigator.platform + ")";
+            }
+
+            // 3. Get Microsoft Clarity Recording URL
+            setTimeout(function(){
+                // Check if Clarity is loaded and field exists
+                if(typeof clarity === 'function' && document.getElementById("field_clarity")) {
+                    var claritySessionId = window.clarity.v; 
+                    
+                    // YOUR CLARITY PROJECT ID
+                    var projectId = "ugwltzryfu"; 
+                    
+                    if(claritySessionId){
+                        document.getElementById("field_clarity").value = "https://clarity.microsoft.com/projects/" + projectId + "/recordings/" + claritySessionId;
+                    }
+                }
+            }, 2000); // Wait 2 seconds for Clarity to load
+        });
     </script>
 </body>
 </html>
