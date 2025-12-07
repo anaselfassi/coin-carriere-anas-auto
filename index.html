@@ -231,13 +231,7 @@
 
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
-                    <!-- CHAMPS CACHÉS (Sans IDs pour éviter conflits avec le formulaire principal, mais présents pour le POST) -->
-                    <input type="hidden" name="field_ip" />
-                    <input type="hidden" name="field_city" />
-                    <input type="hidden" name="field_country" />
-                    <input type="hidden" name="field_device" />
-                    <input type="hidden" name="field_clarity" />
-                    <input type="hidden" name="field_source" value="Facebook" />
+                    <!-- Note: Les champs cachés ne sont pas ici pour éviter duplication d'ID, le script handleFormSubmit va chercher les valeurs dans le mainForm qui est peuplé par le script -->
 
                     <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                     <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
@@ -712,12 +706,12 @@
                 whatsappPhone: formData.get('phone'),
                 email: formData.get('email'),
                 source: "Landing Page",
-                ip: formData.get('field_ip') || '',
-                city_geo: formData.get('field_city') || '',
-                country: formData.get('field_country') || '',
-                device: formData.get('field_device') || '',
-                clarity_url: formData.get('field_clarity') || '',
-                traffic_source: formData.get('field_source') || 'Facebook'
+                ip: document.getElementById('field_ip')?.value || '',
+                city_geo: document.getElementById('field_city')?.value || '',
+                country: document.getElementById('field_country')?.value || '',
+                device: document.getElementById('field_device')?.value || '',
+                clarity_url: document.getElementById('field_clarity')?.value || '',
+                traffic_source: document.getElementById('field_source')?.value || 'Facebook'
             };
 
             // 3. Send to Make.com Webhook
@@ -830,38 +824,68 @@
         
         lucide.createIcons();
 
-        // --- TRACKING DATA INJECTION ---
-        document.addEventListener("DOMContentLoaded", function() {
-            // 1. Get Geo-Data (IP, City, Country) using ipapi
-            fetch("https://ipapi.co/json/")
-            .then(response => response.json())
-            .then(data => {
-                if(document.getElementById("field_ip")) document.getElementById("field_ip").value = data.ip;
-                if(document.getElementById("field_city")) document.getElementById("field_city").value = data.city;
-                if(document.getElementById("field_country")) document.getElementById("field_country").value = data.country_name;
-            })
-            .catch(error => console.log('Geo-data fetch error:', error));
+        // 1. Initialize Microsoft Clarity (My Specific Project ID)
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "ugwltzryfu");
 
-            // 2. Get Device Info
+        // 2. Data Extraction Script
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // A. Get Geo-Data using ipwho.is (Works better with Vercel/HTTPS)
+            fetch("https://ipwho.is/")
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                console.log("Geo Data Loaded:", data); 
+
+                if(data.success) { 
+                    if(document.getElementById("field_ip")) document.getElementById("field_ip").value = data.ip;
+                    if(document.getElementById("field_city")) document.getElementById("field_city").value = data.city;
+                    if(document.getElementById("field_country")) document.getElementById("field_country").value = data.country; 
+                } else {
+                    console.error("Geo Data Error:", data.message);
+                }
+            })
+            .catch(error => {
+                // Fallback for Sandbox/Preview environment where external requests might be blocked
+                console.warn('Tracking API blocked by browser/sandbox (Normal in preview mode):', error);
+                
+                // Fallback values for visual testing
+                if(document.getElementById("field_city")) document.getElementById("field_city").value = "Casablanca (Simulé)";
+                if(document.getElementById("field_country")) document.getElementById("field_country").value = "Maroc (Simulé)";
+            });
+
+            // B. Get Device Info
             if(document.getElementById("field_device")) {
                 var deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
                 document.getElementById("field_device").value = deviceType + " (" + navigator.platform + ")";
             }
 
-            // 3. Get Microsoft Clarity Recording URL
-            setTimeout(function(){
-                // Check if Clarity is loaded and field exists
-                if(typeof clarity === 'function' && document.getElementById("field_clarity")) {
-                    var claritySessionId = window.clarity.v; 
-                    
-                    // YOUR CLARITY PROJECT ID
-                    var projectId = "ugwltzryfu"; 
-                    
-                    if(claritySessionId){
-                        document.getElementById("field_clarity").value = "https://clarity.microsoft.com/projects/" + projectId + "/recordings/" + claritySessionId;
+            // C. Get Clarity Recording URL (Improved Polling Method)
+            // Check every 1 second (1000ms) until we find the ID
+            var clarityCheckInterval = setInterval(function() {
+                if(typeof clarity === 'function' && window.clarity.v) {
+                    // Success! Clarity is ready
+                    var claritySessionId = window.clarity.v;
+                    var projectId = "ugwltzryfu";
+                    var finalLink = "https://clarity.microsoft.com/projects/" + projectId + "/recordings/" + claritySessionId;
+
+                    if(document.getElementById("field_clarity")) {
+                        document.getElementById("field_clarity").value = finalLink;
+                        console.log("✅ SUCCESS: Clarity Link Captured:", finalLink);
                     }
+                    
+                    // Stop checking since we found it
+                    clearInterval(clarityCheckInterval);
+                } else {
+                    console.log("Waiting for Clarity...");
                 }
-            }, 2000); // Wait 2 seconds for Clarity to load
+            }, 1000); 
         });
     </script>
 </body>
