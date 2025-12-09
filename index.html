@@ -27,7 +27,7 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
 
-    <!-- Microsoft Clarity (Standard Install) -->
+    <!-- Microsoft Clarity (Standard Install - No Hacks) -->
     <script type="text/javascript">
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -35,6 +35,7 @@
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "ugwltzryfu");
     </script>
+    <!-- End Microsoft Clarity -->
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,17 +57,21 @@
             --lime: #dcfe11;
         }
         
+        /* PROTECTION DU SITE */
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
             overflow-x: hidden;
-            user-select: none;
+            user-select: none; /* Empêche la sélection de texte */
+            -webkit-user-select: none;
         }
 
         .font-cairo { font-family: 'Cairo', sans-serif; }
         
-        /* Animations */
+        /* --- ANIMATIONS --- */
+        
+        /* Background vivant subtil */
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -78,6 +83,7 @@
             animation: gradientBG 15s ease infinite;
         }
 
+        /* Apparition 3D fluide */
         .reveal {
             opacity: 0;
             transform: translateY(40px) scale(0.95);
@@ -90,6 +96,7 @@
             filter: blur(0);
         }
 
+        /* Cartes qui "respirent" et brillent au survol */
         .magic-card {
             transition: all 0.4s ease;
             position: relative;
@@ -101,6 +108,11 @@
             border-color: #dcfe11;
         }
 
+        /* Bouton "Cœur qui bat" */
+        .pulse-btn {
+            position: relative;
+            overflow: hidden;
+        }
         .pulse-btn:hover {
             animation: heartBeat 1.5s infinite;
         }
@@ -110,6 +122,7 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 254, 17, 0); }
         }
 
+        /* Défilement Infini Fluide */
         @keyframes scroll {
             0% { transform: translateX(0); }
             100% { transform: translateX(calc(-250px * 5)); }
@@ -147,6 +160,7 @@
             justify-content: center;
         }
 
+        /* Blobs Flottants Améliorés */
         @keyframes morph {
             0% { border-radius: 60% 40% 30% 70%/60% 30% 70% 40%; }
             50% { border-radius: 30% 60% 70% 40%/50% 60% 30% 60%; }
@@ -161,6 +175,7 @@
             animation: morph 8s ease-in-out infinite alternate;
         }
 
+        /* Popup Entry */
         @keyframes popupBounce {
             0% { opacity: 0; transform: scale(0.3); }
             50% { opacity: 1; transform: scale(1.05); }
@@ -171,6 +186,7 @@
             animation: popupBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
+        /* FAQ */
         .faq-content {
             max-height: 0;
             overflow: hidden;
@@ -187,6 +203,7 @@
             .reveal { transform: translateY(20px); filter: none; }
         }
         
+        /* Vidéo Custom Style */
         video { border-radius: 1.2rem; outline: none; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         video::-webkit-media-controls-panel { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent); }
     </style>
@@ -214,13 +231,14 @@
 
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
-                    <!-- Advanced Matching Fields -->
+                    <!-- Advanced Matching Fields (Hidden) -->
                     <input type="hidden" name="fbp" />
                     <input type="hidden" name="fbc" />
-                    
-                    <!-- Standard Fields -->
+                    <input type="hidden" name="user_agent" />
+                    <input type="hidden" name="ip_address" />
+                    <input type="hidden" name="lead_submitted_at" />
                     <input type="hidden" name="field_source" value="Facebook" />
-                    
+
                     <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                     <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
                     <div class="grid grid-cols-2 gap-3">
@@ -295,14 +313,11 @@
                 </div>
             </div>
 
-            <!-- VIDEO PLAYER (Full Control & Smart Detection) -->
+            <!-- VIDEO PLAYER -->
             <div class="lg:w-7/12 w-full relative reveal" style="transition-delay: 0.2s">
                 <div class="relative group w-full perspective-1000" id="videoWrapper">
-                    <!-- Glow effect -->
                     <div class="absolute -inset-1 bg-gradient-to-tr from-[#0094d9] via-[#0b3f59] to-[#dcfe11] rounded-[1.5rem] blur opacity-30 group-hover:opacity-60 transition duration-700 pointer-events-none"></div>
-                    
                     <div class="relative rounded-[1.2rem] overflow-hidden shadow-2xl border-[3px] border-white bg-black aspect-video z-10 transform transition-transform duration-500 hover:scale-[1.01]">
-                        <!-- VIDEO TAG -->
                         <video 
                             id="heroVideo" 
                             class="w-full h-full object-cover" 
@@ -496,11 +511,12 @@
                 <!-- Main Form (Aussi surveillé par le détecteur d'activité) -->
                 <div class="md:w-1/2 p-10 md:p-14 bg-white relative">
                     <form id="mainForm" onsubmit="handleFormSubmit(event)" class="space-y-5 popup-form-monitor">
-                        <!-- Advanced Matching Fields -->
+                        <!-- Advanced Matching Hidden Fields -->
                         <input type="hidden" name="fbp" />
                         <input type="hidden" name="fbc" />
-                        
-                        <!-- Standard Fields -->
+                        <input type="hidden" name="user_agent" />
+                        <input type="hidden" name="ip_address" />
+                        <input type="hidden" name="lead_submitted_at" />
                         <input type="hidden" name="field_source" value="Facebook" />
 
                         <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
@@ -537,29 +553,6 @@
         <div class="flex justify-center mb-6 opacity-50 hover:opacity-100 transition-opacity"><img src="logo.png" alt="logo" class="h-8 brightness-0 invert" onerror="this.style.display='none'"></div>
         <p class="text-xs font-medium tracking-wide">&copy; 2024 Coin Carrière. Tous droits réservés.</p>
     </footer>
-
-    <!-- VIEW: CONFIRMATION (Simulée pour la démo, Cachée par défaut) -->
-    <div id="confirmation-view" class="hidden min-h-screen flex items-center justify-center px-4 bg-white font-montserrat relative overflow-hidden">
-        <div class="blob bg-blue-200 w-96 h-96 rounded-full top-0 left-0 animate-pulse"></div>
-        <div class="blob bg-lime-100 w-80 h-80 rounded-full bottom-0 right-0 animate-pulse" style="animation-delay: 1s"></div>
-
-        <div class="max-w-lg w-full bg-white/90 backdrop-blur-xl p-10 md:p-12 rounded-[2.5rem] shadow-2xl text-center relative z-10 border border-white animate-in zoom-in duration-500">
-            <div class="w-24 h-24 bg-[#dcfe11]/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                <i data-lucide="check-circle" class="w-12 h-12 text-[#0b3f59]"></i>
-            </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0b3f59] mb-6 font-cairo">Félicitations ! 🎉</h1>
-            <p class="text-gray-600 mb-10 text-lg leading-relaxed font-medium">
-                Votre pré-inscription est validée. Vous recevrez très bientôt vos identifiants d'accès à la plateforme privée.
-            </p>
-            <div class="bg-blue-50 p-5 rounded-2xl mb-10 text-sm text-[#0b3f59] font-semibold flex items-center gap-4 text-left border border-blue-100">
-                <div class="bg-white p-2 rounded-full shadow-sm"><i data-lucide="mail" class="w-5 h-5 shrink-0 text-[#0094d9]"></i></div>
-                <span>Vérifiez vos emails (et spams). L'aventure commence.</span>
-            </div>
-            <button onclick="location.reload()" class="w-full py-5 px-6 rounded-xl font-bold text-[#0b3f59] text-lg hover:shadow-xl bg-[#dcfe11] transition-all transform hover:-translate-y-1 active:scale-95">
-                Retour à l'accueil
-            </button>
-        </div>
-    </div>
 
     <script>
         // Init Lucide Icons
@@ -634,9 +627,9 @@
                 if (!isVideoPlaying && !isFormActive && !isPopupVisible && !hasPopupShown) {
                     openPopup();
                     hasPopupShown = true; 
-                    clearInterval(popupInterval);
+                    clearInterval(popupInterval); 
                 }
-            }, 45000); // 45 secondes
+            }, 45000); 
         }
 
         function openPopup() {
@@ -658,87 +651,69 @@
 
         startPopupTimer();
 
-        // COOKIE HELPER FOR ADVANCED MATCHING
+        // COOKIE HELPER
         function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) return parts.pop().split(';').shift();
         }
 
+        // AUTO-FILL DATA ON LOAD
         document.addEventListener("DOMContentLoaded", () => {
+            // 1. IP & Location (via API)
+             fetch("https://ipwho.is/")
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                   document.querySelectorAll('input[name="ip_address"]').forEach(el => el.value = data.ip);
+                   // Note: You can add other fields if needed
+                }
+            })
+            .catch(err => console.warn("IP fetch skipped"));
+
+            // 2. Facebook Cookies
             const fbp = getCookie('_fbp');
             const fbc = getCookie('_fbc');
-            
-            // Populate hidden fields if cookies exist
-            if(fbp) {
-                document.querySelectorAll('input[name="fbp"]').forEach(el => el.value = fbp);
-            }
-            if(fbc) {
-                document.querySelectorAll('input[name="fbc"]').forEach(el => el.value = fbc);
-            }
+            if(fbp) document.querySelectorAll('input[name="fbp"]').forEach(el => el.value = fbp);
+            if(fbc) document.querySelectorAll('input[name="fbc"]').forEach(el => el.value = fbc);
+
+            // 3. User Agent
+            document.querySelectorAll('input[name="user_agent"]').forEach(el => el.value = navigator.userAgent);
         });
 
-        // Form Handling with Webhook & Redirect Logic
+        // Form Handling
         function handleFormSubmit(e) {
             e.preventDefault();
             
             const form = e.target;
             const btn = form.querySelector('button[type="submit"]');
             
-            // 1. Loading State
+            // Loading State
             btn.innerHTML = 'Traitement en cours...';
             btn.disabled = true;
 
-            // 2. Prepare Data for Webhook
-            const formData = new FormData(form);
-            const data = {
-                fullName: formData.get('fullName'),
-                businessName: formData.get('centerName'),
-                city: formData.get('city'),
-                whatsappPhone: formData.get('phone'),
-                email: formData.get('email'),
-                source: "Landing Page",
-                fbp: formData.get('fbp') || '',
-                fbc: formData.get('fbc') || '',
-                traffic_source: 'Facebook'
-            };
+            // Set Submission Time
+            const dateInput = form.querySelector('input[name="lead_submitted_at"]');
+            if(dateInput) dateInput.value = new Date().toISOString();
 
-            // 3. Send to Make.com Webhook
+            // Prepare Data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Send to Make.com
             fetch('https://hook.eu1.make.com/5orxv4r7zakxnr2ec0vmjw2py5n7p47j', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
             .then(res => {
-                if (res.ok) {
-                    console.log('Lead sent successfully');
-                } else {
-                    console.warn('Webhook returned error:', res.status);
-                }
+                if (res.ok) console.log('Lead sent successfully');
+                else console.warn('Webhook error:', res.status);
             })
-            .catch(err => {
-                console.warn('Webhook unreachable (CORS/Adblock):', err);
-            })
+            .catch(err => console.warn('Webhook unreachable:', err))
             .finally(() => {
-                // 4. Redirection to Thank You Page
-                setTimeout(() => {
-                    // --- VERSION PREVIEW (POUR LE TEST ICI) ---
-                    // En Sandbox, nous ne pouvons pas naviguer vers un autre fichier.
-                    // Nous simulons la transition.
-                    const landingView = document.getElementById('landing-view');
-                    const confirmationView = document.getElementById('confirmation-view');
-                    if (landingView && confirmationView) {
-                        landingView.classList.add('hidden');
-                        confirmationView.classList.remove('hidden');
-                    }
-                    window.scrollTo(0, 0);
-
-                    // --- VERSION PRODUCTION (POUR VOTRE SITE REEL) ---
-                    // Décommentez la ligne ci-dessous et supprimez la logique de simulation ci-dessus
-                    // window.location.href = "thankyou.html";
-                }, 1000);
+                // Redirect to Thank You Page
+                window.location.href = "thankyou.html";
             });
         }
 
