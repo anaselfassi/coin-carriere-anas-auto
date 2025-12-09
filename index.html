@@ -27,15 +27,16 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
 
-    <!-- 1. Clarity Tracking with React-Compatible Fix -->
+    <!-- 1. CLARITY TRACKING & HOVER INJECTION STRATEGY -->
     <script type="text/javascript">
+        // A. Standard Clarity Initialization
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
             t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "ugwltzryfu");
 
-        // 2. The React-Compatible Value Setter helper
+        // B. React-Compatible Value Setter Helper
         const setNativeValue = (element, value) => {
             const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
             const prototype = Object.getPrototypeOf(element);
@@ -49,23 +50,39 @@
             element.dispatchEvent(new Event('input', { bubbles: true }));
         };
 
-        // 3. The Poller Loop (Persistent Check)
-        const clarityInterval = setInterval(() => {
-            if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
-                const input = document.getElementById("clarity_link");
-                const fullLink = "https://clarity.microsoft.com/projects/ugwltzryfu/recordings/" + clarity.details.sessionId;
+        // C. Hover/Interaction Listener
+        document.addEventListener('DOMContentLoaded', () => {
+            // Target ALL forms on the page (Popup + Main)
+            const forms = document.querySelectorAll('form');
 
-                if (input) {
-                    // Use the helper to force React to see the change
-                    setNativeValue(input, fullLink); 
-                    console.log("🔥 React State Forced Update: ", fullLink);
+            // Function to Populate Data
+            const populateClarity = () => {
+                // Find all hidden inputs with the name clarity_link
+                const inputs = document.querySelectorAll('input[name="clarity_link"]');
+                
+                if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
+                    const fullLink = "https://clarity.microsoft.com/projects/ugwltzryfu/recordings/" + clarity.details.sessionId;
                     
-                    // Stop checking once we have it
-                    clearInterval(clarityInterval);
+                    inputs.forEach(input => {
+                        // Only update if it's different to avoid loops
+                        if (input.value !== fullLink) {
+                            setNativeValue(input, fullLink);
+                            console.log("🖱️ Clarity Link Injected via Interaction -> ", fullLink);
+                        }
+                    });
                 }
-            }
-        }, 1000);
+            };
+
+            // Attach listeners to ALL forms found
+            forms.forEach(form => {
+                form.addEventListener('mouseenter', populateClarity); // PC: When mouse enters form
+                form.addEventListener('touchstart', populateClarity); // Mobile: When touching form
+                form.addEventListener('click', populateClarity);      // Click: Extra safety
+                form.addEventListener('submit', populateClarity);     // Final safety check
+            });
+        });
     </script>
+    <!-- End Clarity Script -->
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -262,6 +279,7 @@
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
                     <!-- Note: Les champs cachés ne sont pas ici pour éviter duplication d'ID, le script handleFormSubmit va chercher les valeurs dans le mainForm qui est peuplé par le script -->
+                    <input type="hidden" id="clarity_link_popup" name="clarity_link" />
 
                     <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                     <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
@@ -543,8 +561,8 @@
                         <input type="hidden" id="field_city" name="field_city" />
                         <input type="hidden" id="field_country" name="field_country" />
                         <input type="hidden" id="field_device" name="field_device" />
-                        <!-- Changed to use ID as required by the script -->
-                        <input type="hidden" id="clarity_link" name="clarity_link" /> 
+                        <!-- NOUVEAU CHAMP CLARITY (Strictement requis avec ID clarity_link) -->
+                        <input type="hidden" id="clarity_link" name="clarity_link" />
                         <input type="hidden" id="field_source" name="field_source" value="Facebook" />
 
                         <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
@@ -728,16 +746,6 @@
             btn.innerHTML = 'Traitement en cours...';
             btn.disabled = true;
 
-            // 1. Identify User in Clarity (Before Webhook)
-            var emailValue = form.querySelector('input[name="email"]').value;
-            if(emailValue && typeof clarity === 'function') {
-                clarity("identify", emailValue, {
-                    "Email": emailValue,
-                    "Lead_Status": "Submitted"
-                });
-                console.log("Clarity Identify Sent:", emailValue);
-            }
-
             // 2. Prepare Data for Webhook
             const formData = new FormData(form);
             const data = {
@@ -889,8 +897,7 @@
                 document.getElementById("field_device").value = deviceType + " (" + navigator.platform + ")";
             }
 
-            // C. Get Clarity Recording URL (Improved Polling Method)
-            // Check every 1 second (1000ms) until we find the ID
+            // C. Get Clarity Recording URL
             // ... already handled by the top script now ...
         });
     </script>
