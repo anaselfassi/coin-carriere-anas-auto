@@ -27,40 +27,45 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
 
-    <!-- ROBUST CLARITY TRACKING + POLLER -->
+    <!-- 1. Clarity Tracking with React-Compatible Fix -->
     <script type="text/javascript">
-        // 1. Standard Clarity Tracking Code (Project ID: ugwltzryfu)
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
             t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "ugwltzryfu");
 
-        // 2. The Safe Capture Loop (Polls every 1 second until found)
-        var clarityInterval = setInterval(function() {
-            // Check if Clarity is loaded AND has a session ID
-            if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
-                var sessionId = clarity.details.sessionId;
-                var fullLink = "https://clarity.microsoft.com/projects/ugwltzryfu/recordings/" + sessionId;
+        // 2. The React-Compatible Value Setter helper
+        const setNativeValue = (element, value) => {
+            const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
+            const prototype = Object.getPrototypeOf(element);
+            const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
 
-                // Try to find the input field
-                var hiddenInput = document.getElementById("clarity_link");
-                
-                if (hiddenInput) {
-                    hiddenInput.value = fullLink;
-                    console.log("✅ SUCCESS: Clarity Link Captured -> ", fullLink);
+            if (valueSetter && valueSetter !== prototypeValueSetter) {
+                prototypeValueSetter.call(element, value);
+            } else {
+                valueSetter.call(element, value);
+            }
+            element.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+
+        // 3. The Poller Loop (Persistent Check)
+        const clarityInterval = setInterval(() => {
+            if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
+                const input = document.getElementById("clarity_link");
+                const fullLink = "https://clarity.microsoft.com/projects/ugwltzryfu/recordings/" + clarity.details.sessionId;
+
+                if (input) {
+                    // Use the helper to force React to see the change
+                    setNativeValue(input, fullLink); 
+                    console.log("🔥 React State Forced Update: ", fullLink);
                     
                     // Stop checking once we have it
                     clearInterval(clarityInterval);
-                } else {
-                    console.log("⚠️ Clarity loaded, but hidden input #clarity_link not found yet.");
                 }
-            } else {
-                console.log("⏳ Waiting for Clarity to generate Session ID...");
             }
-        }, 1000); // Check every 1 second
+        }, 1000);
     </script>
-    <!-- End Robust Clarity Tracking -->
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -538,11 +543,9 @@
                         <input type="hidden" id="field_city" name="field_city" />
                         <input type="hidden" id="field_country" name="field_country" />
                         <input type="hidden" id="field_device" name="field_device" />
-                        <input type="hidden" id="field_clarity" name="field_clarity" />
+                        <!-- Changed to use ID as required by the script -->
+                        <input type="hidden" id="clarity_link" name="clarity_link" /> 
                         <input type="hidden" id="field_source" name="field_source" value="Facebook" />
-
-                        <!-- NOUVEAU CHAMP CLARITY (Strictement requis) -->
-                        <input type="hidden" id="clarity_link" name="clarity_link" />
 
                         <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                         <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
@@ -718,15 +721,22 @@
         function handleFormSubmit(e) {
             e.preventDefault();
             
-            // 1. CRITICAL: Trigger Clarity Session Capture NOW
-            captureClaritySession();
-
             const form = e.target;
             const btn = form.querySelector('button[type="submit"]');
             
             // Loading State
             btn.innerHTML = 'Traitement en cours...';
             btn.disabled = true;
+
+            // 1. Identify User in Clarity (Before Webhook)
+            var emailValue = form.querySelector('input[name="email"]').value;
+            if(emailValue && typeof clarity === 'function') {
+                clarity("identify", emailValue, {
+                    "Email": emailValue,
+                    "Lead_Status": "Submitted"
+                });
+                console.log("Clarity Identify Sent:", emailValue);
+            }
 
             // 2. Prepare Data for Webhook
             const formData = new FormData(form);
@@ -741,10 +751,8 @@
                 city_geo: document.getElementById('field_city')?.value || '',
                 country: document.getElementById('field_country')?.value || '',
                 device: document.getElementById('field_device')?.value || '',
-                clarity_url: document.getElementById('field_clarity')?.value || '',
-                traffic_source: document.getElementById('field_source')?.value || 'Facebook',
-                // New Clarity Field
-                clarity_link: document.getElementById('clarity_link')?.value || 'Not captured'
+                clarity_url: document.getElementById('clarity_link')?.value || 'Not captured',
+                traffic_source: document.getElementById('field_source')?.value || 'Facebook'
             };
 
             // 3. Send to Make.com Webhook
@@ -782,34 +790,6 @@
                     // window.location.href = "thankyou.html";
                 }, 1000);
             });
-        }
-
-        // --- CLARITY SESSION CAPTURE FUNCTION ---
-        function captureClaritySession() {
-            try {
-                var sessionLink = 'Not captured';
-                if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
-                    var projectId = "ugwltzryfu";
-                    sessionLink = "https://clarity.microsoft.com/projects/" + projectId + "/recordings/" + clarity.details.sessionId;
-                }
-                
-                // Update all fields with this name (handling both forms)
-                var fields = document.querySelectorAll('input[name="clarity_link"]');
-                fields.forEach(function(field) {
-                    field.value = sessionLink;
-                });
-                
-                // Update specific ID field if present
-                if(document.getElementById("clarity_link")) {
-                     document.getElementById("clarity_link").value = sessionLink;
-                }
-
-                console.log("Clarity Session Captured:", sessionLink);
-                return sessionLink;
-            } catch (e) {
-                console.warn("Clarity capture failed", e);
-                return 'Not captured';
-            }
         }
 
         // Generate Partners
@@ -885,22 +865,12 @@
         
         lucide.createIcons();
 
-        // 1. Initialize Microsoft Clarity (My Specific Project ID)
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "ugwltzryfu");
-
         // 2. Data Extraction Script
         document.addEventListener("DOMContentLoaded", function() {
 
             // A. Get Geo-Data using ipwho.is (Works better with Vercel/HTTPS)
             fetch("https://ipwho.is/")
-            .then(response => {
-                if (!response.ok) throw new Error("Network response was not ok");
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if(data.success) {
                     if(document.getElementById("field_ip")) document.getElementById("field_ip").value = data.ip;
@@ -909,12 +879,8 @@
                 }
             })
             .catch(error => {
-                // Fallback for Sandbox/Preview environment where external requests might be blocked
-                // console.warn('Tracking API blocked by browser/sandbox (Normal in preview mode):', error);
-                
-                // Fallback values for visual testing
-                if(document.getElementById("field_city")) document.getElementById("field_city").value = "Casablanca (Simulé)";
-                if(document.getElementById("field_country")) document.getElementById("field_country").value = "Maroc (Simulé)";
+               // Silent fail for sandbox
+               console.warn("Geo IP fetch skipped (Sandbox mode)");
             });
 
             // B. Get Device Info
@@ -925,24 +891,7 @@
 
             // C. Get Clarity Recording URL (Improved Polling Method)
             // Check every 1 second (1000ms) until we find the ID
-            var clarityCheckInterval = setInterval(function() {
-                if(typeof clarity === 'function' && window.clarity.v) {
-                    // Success! Clarity is ready
-                    var claritySessionId = window.clarity.v;
-                    var projectId = "ugwltzryfu";
-                    var finalLink = "https://clarity.microsoft.com/projects/" + projectId + "/recordings/" + claritySessionId;
-
-                    if(document.getElementById("field_clarity")) {
-                        document.getElementById("field_clarity").value = finalLink;
-                        console.log("✅ SUCCESS: Clarity Link Captured:", finalLink);
-                    }
-                    
-                    // Stop checking since we found it
-                    clearInterval(clarityCheckInterval);
-                } else {
-                    console.log("Waiting for Clarity...");
-                }
-            }, 1000); 
+            // ... already handled by the top script now ...
         });
     </script>
 </body>
