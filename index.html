@@ -231,14 +231,7 @@
 
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
-                    <!-- CHAMPS CACHÉS TRACKING -->
-                    <input type="hidden" name="field_ip" />
-                    <input type="hidden" name="field_city" />
-                    <input type="hidden" name="field_country" />
-                    <input type="hidden" name="field_device" />
-                    <input type="hidden" name="field_source" value="Facebook" />
-                    <!-- NOUVEAU CHAMP CLARITY -->
-                    <input type="hidden" name="clarity_link" />
+                    <!-- Note: Les champs cachés ne sont pas ici pour éviter duplication d'ID, le script handleFormSubmit va chercher les valeurs dans le mainForm qui est peuplé par le script -->
 
                     <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                     <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
@@ -723,6 +716,7 @@
                 city_geo: document.getElementById('field_city')?.value || '',
                 country: document.getElementById('field_country')?.value || '',
                 device: document.getElementById('field_device')?.value || '',
+                clarity_url: document.getElementById('field_clarity')?.value || '',
                 traffic_source: document.getElementById('field_source')?.value || 'Facebook',
                 // New Clarity Field
                 clarity_link: document.getElementById('clarity_link')?.value || 'Not captured'
