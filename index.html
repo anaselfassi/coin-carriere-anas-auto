@@ -231,7 +231,14 @@
 
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
-                    <!-- Note: Les champs cachés ne sont pas ici pour éviter duplication d'ID, le script handleFormSubmit va chercher les valeurs dans le mainForm qui est peuplé par le script -->
+                    <!-- CHAMPS CACHÉS TRACKING -->
+                    <input type="hidden" name="field_ip" />
+                    <input type="hidden" name="field_city" />
+                    <input type="hidden" name="field_country" />
+                    <input type="hidden" name="field_device" />
+                    <input type="hidden" name="field_source" value="Facebook" />
+                    <!-- NOUVEAU CHAMP CLARITY -->
+                    <input type="hidden" name="clarity_link" />
 
                     <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                     <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
@@ -516,6 +523,9 @@
                         <input type="hidden" id="field_clarity" name="field_clarity" />
                         <input type="hidden" id="field_source" name="field_source" value="Facebook" />
 
+                        <!-- NOUVEAU CHAMP CLARITY (Strictement requis) -->
+                        <input type="hidden" id="clarity_link" name="clarity_link" />
+
                         <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                         <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
                         <div class="grid grid-cols-2 gap-4">
@@ -690,10 +700,13 @@
         function handleFormSubmit(e) {
             e.preventDefault();
             
+            // 1. CRITICAL: Trigger Clarity Session Capture NOW
+            captureClaritySession();
+
             const form = e.target;
             const btn = form.querySelector('button[type="submit"]');
             
-            // 1. Loading State
+            // Loading State
             btn.innerHTML = 'Traitement en cours...';
             btn.disabled = true;
 
@@ -710,8 +723,9 @@
                 city_geo: document.getElementById('field_city')?.value || '',
                 country: document.getElementById('field_country')?.value || '',
                 device: document.getElementById('field_device')?.value || '',
-                clarity_url: document.getElementById('field_clarity')?.value || '',
-                traffic_source: document.getElementById('field_source')?.value || 'Facebook'
+                traffic_source: document.getElementById('field_source')?.value || 'Facebook',
+                // New Clarity Field
+                clarity_link: document.getElementById('clarity_link')?.value || 'Not captured'
             };
 
             // 3. Send to Make.com Webhook
@@ -749,6 +763,34 @@
                     // window.location.href = "thankyou.html";
                 }, 1000);
             });
+        }
+
+        // --- CLARITY SESSION CAPTURE FUNCTION ---
+        function captureClaritySession() {
+            try {
+                var sessionLink = 'Not captured';
+                if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
+                    var projectId = "ugwltzryfu";
+                    sessionLink = "https://clarity.microsoft.com/projects/" + projectId + "/recordings/" + clarity.details.sessionId;
+                }
+                
+                // Update all fields with this name (handling both forms)
+                var fields = document.querySelectorAll('input[name="clarity_link"]');
+                fields.forEach(function(field) {
+                    field.value = sessionLink;
+                });
+                
+                // Update specific ID field if present
+                if(document.getElementById("clarity_link")) {
+                     document.getElementById("clarity_link").value = sessionLink;
+                }
+
+                console.log("Clarity Session Captured:", sessionLink);
+                return sessionLink;
+            } catch (e) {
+                console.warn("Clarity capture failed", e);
+                return 'Not captured';
+            }
         }
 
         // Generate Partners
