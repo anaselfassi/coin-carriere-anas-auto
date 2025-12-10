@@ -27,7 +27,7 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
 
-    <!-- Microsoft Clarity (Standard Install Only - Logic moved to bottom) -->
+    <!-- Microsoft Clarity (Standard Install) -->
     <script type="text/javascript">
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -209,14 +209,13 @@
 
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
-                    <!-- Note: Les champs cachés ne sont pas ici pour éviter duplication d'ID -->
+                    <!-- Advanced Matching Fields (For FormData) -->
                     <input type="hidden" name="fbp" />
                     <input type="hidden" name="fbc" />
-                    <input type="hidden" name="clarity_link" />
-                    <input type="hidden" name="field_source" value="Facebook" />
                     <input type="hidden" name="user_agent" />
                     <input type="hidden" name="ip_address" />
                     <input type="hidden" name="lead_submitted_at" />
+                    <input type="hidden" name="field_source" value="Facebook" />
 
                     <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
                     <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
@@ -249,7 +248,6 @@
 
     <!-- HERO SECTION -->
     <section class="pt-28 md:pt-36 pb-12 md:pb-20 px-4 md:px-8 lg:px-12 relative overflow-hidden">
-        <!-- Blobs animés -->
         <div class="blob bg-[#0094d9]/20 w-[400px] h-[400px] rounded-full top-[-100px] right-[-100px] animate-pulse"></div>
         <div class="blob bg-[#dcfe11]/30 w-[300px] h-[300px] rounded-full bottom-[0px] left-[-50px]" style="animation-delay: 2s"></div>
 
@@ -292,14 +290,11 @@
                 </div>
             </div>
 
-            <!-- VIDEO PLAYER (Full Control & Smart Detection) -->
+            <!-- VIDEO PLAYER -->
             <div class="lg:w-7/12 w-full relative reveal" style="transition-delay: 0.2s">
                 <div class="relative group w-full perspective-1000" id="videoWrapper">
-                    <!-- Glow effect -->
                     <div class="absolute -inset-1 bg-gradient-to-tr from-[#0094d9] via-[#0b3f59] to-[#dcfe11] rounded-[1.5rem] blur opacity-30 group-hover:opacity-60 transition duration-700 pointer-events-none"></div>
-                    
                     <div class="relative rounded-[1.2rem] overflow-hidden shadow-2xl border-[3px] border-white bg-black aspect-video z-10 transform transition-transform duration-500 hover:scale-[1.01]">
-                        <!-- VIDEO TAG -->
                         <video 
                             id="heroVideo" 
                             class="w-full h-full object-cover" 
@@ -374,7 +369,6 @@
     <!-- URGENCY SECTION -->
     <section class="py-20 px-4 relative overflow-hidden">
         <div class="max-w-4xl mx-auto bg-gradient-to-br from-[#dcfe11] to-[#ccee0e] rounded-[3rem] p-10 md:p-16 text-center relative shadow-[0_30px_60px_rgba(200,254,17,0.3)] reveal transform hover:scale-[1.01] transition-transform duration-500">
-            <!-- Shine effect -->
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 translate-x-[-150%] animate-shine"></div>
             
             <div class="relative z-10">
@@ -494,12 +488,11 @@
                 <div class="md:w-1/2 p-10 md:p-14 bg-white relative">
                     <form id="mainForm" onsubmit="handleFormSubmit(event)" class="space-y-5 popup-form-monitor">
                         <!-- Advanced Matching Hidden Fields -->
-                        <input type="hidden" name="fbp" id="fbp" />
-                        <input type="hidden" name="fbc" id="fbc" />
+                        <input type="hidden" name="fbp" />
+                        <input type="hidden" name="fbc" />
                         <input type="hidden" name="user_agent" />
                         <input type="hidden" name="ip_address" />
                         <input type="hidden" name="lead_submitted_at" />
-                        <input type="hidden" name="clarity_link" />
                         <input type="hidden" name="field_source" value="Facebook" />
 
                         <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
@@ -653,79 +646,56 @@
 
         startPopupTimer();
 
-        // ------------------------------------------------------------------
-        // DEFINITION UNIQUE DES UTILITAIRES (GLOBAL SCOPE)
-        // ------------------------------------------------------------------
-        
-        // 1. Helper pour les cookies
-        function getPixelCookie(name) {
+        // COOKIE HELPER
+        function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) return parts.pop().split(';').shift();
             return null;
         }
 
-        // 2. Initialisation des données au chargement
+        // AUTO-FILL DATA ON LOAD
         document.addEventListener("DOMContentLoaded", () => {
-            // A. IP & Location (Silencieux si échec)
-            fetch("https://ipwho.is/")
+            // 1. IP & Location (via API)
+             fetch("https://ipwho.is/")
             .then(response => response.json())
             .then(data => {
                 if(data.success) {
                    document.querySelectorAll('input[name="ip_address"]').forEach(el => el.value = data.ip);
                 }
             })
-            .catch(() => {}); // Erreur silencieuse
+            .catch(err => console.warn("IP fetch skipped"));
 
-            // B. Cookies Facebook (FBP / FBC)
-            const fbp = getPixelCookie('_fbp');
-            const fbc = getPixelCookie('_fbc');
-            
-            if(fbp) {
-                document.querySelectorAll('input[name="fbp"]').forEach(el => {
-                    setNativeValue(el, fbp);
-                    console.log("✅ FBP Injected:", fbp);
-                });
-            }
-            if(fbc) {
-                document.querySelectorAll('input[name="fbc"]').forEach(el => {
-                    setNativeValue(el, fbc);
-                    console.log("✅ FBC Injected:", fbc);
-                });
-            }
+            // 2. Facebook Cookies
+            const fbp = getCookie('_fbp');
+            const fbc = getCookie('_fbc');
+            if(fbp) document.querySelectorAll('input[name="fbp"]').forEach(el => el.value = fbp);
+            if(fbc) document.querySelectorAll('input[name="fbc"]').forEach(el => el.value = fbc);
 
-            // C. User Agent
+            // 3. User Agent
             document.querySelectorAll('input[name="user_agent"]').forEach(el => el.value = navigator.userAgent);
         });
 
-        // 3. Gestionnaire de soumission du formulaire
+        // Form Handling
         function handleFormSubmit(e) {
             e.preventDefault();
             
             const form = e.target;
             const btn = form.querySelector('button[type="submit"]');
             
+            // Loading State
             btn.innerHTML = 'Traitement en cours...';
             btn.disabled = true;
 
-            // Date de soumission précise
+            // Set Submission Time
             const dateInput = form.querySelector('input[name="lead_submitted_at"]');
             if(dateInput) dateInput.value = new Date().toISOString();
-            
-            // Capture lien Clarity
-            if(typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
-                const clarityInput = form.querySelector('input[name="clarity_link"]');
-                if(clarityInput) {
-                     const link = "https://clarity.microsoft.com/projects/ugwltzryfu/recordings/" + clarity.details.sessionId;
-                     setNativeValue(clarityInput, link);
-                }
-            }
 
-            // Préparation des données
+            // Prepare Data
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-            // Envoi au Webhook Make
+            // Send to Make.com
             fetch('https://hook.eu1.make.com/5orxv4r7zakxnr2ec0vmjw2py5n7p47j', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -737,14 +707,9 @@
             })
             .catch(err => console.warn('Webhook unreachable:', err))
             .finally(() => {
-                // REDIRECTION (Décommentez pour la prod)
+                // Redirect to Thank You Page
                 setTimeout(() => {
-                    // window.location.href = "thankyou.html";
-                    
-                    // Simulation pour la démo :
-                    document.getElementById('landing-view').classList.add('hidden');
-                    document.getElementById('confirmation-view').classList.remove('hidden');
-                    window.scrollTo(0, 0);
+                    window.location.href = "thankyou.html";
                 }, 1000);
             });
         }
