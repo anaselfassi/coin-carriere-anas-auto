@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" oncontextmenu="return false;">
+<html lang="ar" dir="rtl" oncontextmenu="return false;">
 <head>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -27,18 +27,103 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
 
-    <!-- Microsoft Clarity (Standard Install) -->
+    <!-- 1. CLARITY TRACKING & UTILITIES (Global) -->
     <script type="text/javascript">
+        // A. Standard Clarity Initialization
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
             t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "ugwltzryfu");
+
+        // B. Global Helper to force React Update (DEFINED ONCE HERE)
+        const setNativeValue = (element, value) => {
+            const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
+            const prototype = Object.getPrototypeOf(element);
+            const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+
+            if (valueSetter && valueSetter !== prototypeValueSetter) {
+                prototypeValueSetter.call(element, value);
+            } else {
+                valueSetter.call(element, value);
+            }
+            element.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+
+        // C. Clarity Hover Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const forms = document.querySelectorAll('form');
+            const populateClarity = () => {
+                const inputs = document.querySelectorAll('input[name="clarity_link"]');
+                if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
+                    const fullLink = "https://clarity.microsoft.com/projects/ugwltzryfu/recordings/" + clarity.details.sessionId;
+                    inputs.forEach(input => {
+                        if (input.value !== fullLink) {
+                            setNativeValue(input, fullLink);
+                            // console.log("🖱️ Clarity Link Injected via Interaction");
+                        }
+                    });
+                }
+            };
+            forms.forEach(form => {
+                form.addEventListener('mouseenter', populateClarity);
+                form.addEventListener('touchstart', populateClarity);
+            });
+        });
+    </script>
+
+    <!-- 2. ROBUST COOKIE EXTRACTION (FBP/FBC) -->
+    <script>
+        // Function to extract cookies (DEFINED ONCE HERE - GLOBAL SCOPE)
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        };
+
+        // Main Execution Logic for FBP/FBC (Runs on load to populate hidden fields visually)
+        const populateTrackingData = () => {
+            // 1. Get FBP
+            const fbpValue = getCookie('_fbp');
+            const fbpInputs = document.querySelectorAll('input[name="fbp"]');
+            
+            fbpInputs.forEach(fbpInput => {
+                if (fbpValue && fbpInput.value !== fbpValue) {
+                    setNativeValue(fbpInput, fbpValue);
+                }
+            });
+
+            // 2. Get FBC
+            const fbcValue = getCookie('_fbc');
+            const fbcInputs = document.querySelectorAll('input[name="fbc"]');
+            
+            fbcInputs.forEach(fbcInput => {
+                if (fbcValue && fbcInput.value !== fbcValue) {
+                    setNativeValue(fbcInput, fbcValue);
+                }
+                
+                // 3. (Optional) Parse URL for fbclid if cookie is missing
+                const urlParams = new URLSearchParams(window.location.search);
+                const fbclid = urlParams.get('fbclid');
+                
+                if (!fbcValue && fbclid && fbcInput.value.indexOf(fbclid) === -1) {
+                    const manualFbc = `fb.1.${Date.now()}.${fbclid}`;
+                    setNativeValue(fbcInput, manualFbc);
+                }
+            });
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(populateTrackingData, 1000); 
+            setTimeout(populateTrackingData, 3000); 
+            document.addEventListener('mousemove', populateTrackingData, { once: true });
+        });
     </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coin Carrière - Salon d'Emploi Media Buying</title>
+    <title>كوين كاريير - صالون توظيف الميديا باينج</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -57,15 +142,13 @@
         }
         
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Cairo', sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
             overflow-x: hidden;
             user-select: none;
         }
 
-        .font-cairo { font-family: 'Cairo', sans-serif; }
-        
         /* Animations */
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -110,10 +193,11 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 254, 17, 0); }
         }
 
-        @keyframes scroll {
+        @keyframes scrollRTL {
             0% { transform: translateX(0); }
-            100% { transform: translateX(calc(-250px * 5)); }
+            100% { transform: translateX(calc(250px * 5)); }
         }
+
         .slider {
             background: white;
             height: 80px;
@@ -123,7 +207,7 @@
             width: 100%;
         }
         .slider::before, .slider::after {
-            background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
             content: "";
             height: 80px;
             position: absolute;
@@ -131,11 +215,11 @@
             z-index: 2;
             pointer-events: none;
         }
-        .slider::after { right: 0; top: 0; transform: rotateZ(180deg); }
-        .slider::before { left: 0; top: 0; }
+        .slider::after { left: 0; top: 0; transform: rotateZ(180deg); }
+        .slider::before { right: 0; top: 0; }
         
         .slide-track {
-            animation: scroll 30s linear infinite;
+            animation: scrollRTL 30s linear infinite;
             display: flex;
             width: calc(250px * 10);
         }
@@ -189,44 +273,47 @@
         
         video { border-radius: 1.2rem; outline: none; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         video::-webkit-media-controls-panel { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent); }
+        
+        .rtl-flip { transform: scaleX(-1); }
     </style>
 </head>
 <body class="animated-bg selection:bg-[#dcfe11] selection:text-[#0b3f59]">
     <!-- POPUP (Intelligent) -->
     <div id="popup" class="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[#0b3f59]/80 backdrop-blur-md transition-all duration-500 opacity-0 invisible pointer-events-none">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl relative overflow-hidden border-2 border-[#dcfe11] popup-content transform transition-all">
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#0b3f59] via-[#0094d9] to-[#dcfe11]"></div>
-            <button onclick="closePopup()" class="absolute top-4 right-4 text-gray-400 hover:text-[#0b3f59] bg-gray-100 hover:bg-[#dcfe11] transition-all rounded-full p-2 z-10">
+            <div class="absolute top-0 right-0 w-full h-2 bg-gradient-to-l from-[#0b3f59] via-[#0094d9] to-[#dcfe11]"></div>
+            <button onclick="closePopup()" class="absolute top-4 left-4 text-gray-400 hover:text-[#0b3f59] bg-gray-100 hover:bg-[#dcfe11] transition-all rounded-full p-2 z-10">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             
             <div class="p-8">
                 <div class="text-center mb-6">
-                    <div class="inline-block bg-[#dcfe11] px-4 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-widest text-[#0b3f59] mb-3 shadow-md animate-pulse">Offre Limitée</div>
-                    <h3 class="text-3xl font-black font-cairo text-[#0b3f59] leading-tight">Attendez ! 🛑</h3>
-                    <p class="text-sm text-gray-600 mt-2 font-medium">Les places partent vite. Ne laissez pas votre concurrent prendre la vôtre.</p>
+                    <div class="inline-block bg-[#dcfe11] px-4 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-widest text-[#0b3f59] mb-3 shadow-md animate-pulse">تذكرة مجانية 🎫</div>
+                    <h3 class="text-3xl font-black font-cairo text-[#0b3f59] leading-tight">تسجل دابا وخد التذكرة ديالك فابور!</h3>
+                    <p class="text-sm text-gray-600 mt-2 font-medium">الدخول 100% بالمجان للمدراء. عمر المعلومات ديالك باش توصل بالدعوة دابا.</p>
                 </div>
 
                 <!-- Formulaire Popup -->
                 <form id="popupForm" onsubmit="handleFormSubmit(event)" class="space-y-4 popup-form-monitor">
-                    <!-- Advanced Matching Fields (For FormData) -->
+                    <!-- Note: Les champs cachés ne sont pas ici pour éviter duplication d'ID -->
                     <input type="hidden" name="fbp" />
                     <input type="hidden" name="fbc" />
+                    <input type="hidden" name="clarity_link" />
+                    <input type="hidden" name="field_source" value="Facebook" />
                     <input type="hidden" name="user_agent" />
                     <input type="hidden" name="ip_address" />
                     <input type="hidden" name="lead_submitted_at" />
-                    <input type="hidden" name="field_source" value="Facebook" />
 
-                    <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
-                    <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
+                    <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="الاسم الكامل *">
+                    <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="اسم المركز *">
                     <div class="grid grid-cols-2 gap-3">
-                        <input type="text" name="city" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Ville *">
-                        <input type="tel" name="phone" required pattern="^(05|06|07)[0-9]{8}$" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="06..." title="Format valide: 0612345678">
+                        <input type="text" name="city" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="المدينة *">
+                        <input type="tel" name="phone" required pattern="^(05|06|07)[0-9]{8}$" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400 text-right" placeholder="الهاتف (06...)*" title="تنسيق صالح: 0612345678" dir="ltr">
                     </div>
-                    <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Email Pro *">
+                    <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 px-5 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400 text-right" placeholder="البريد الإلكتروني المهني *" dir="ltr">
                     
                     <button type="submit" class="pulse-btn w-full mt-2 py-4 rounded-xl text-base font-bold text-[#0b3f59] bg-[#dcfe11] hover:bg-[#ccee0e] shadow-xl transition-all flex items-center justify-center gap-2 transform active:scale-95">
-                        Bloquer ma place (Gratuit)
+                        🔥 حجز تذكرتي المجانية الان
                     </button>
                 </form>
             </div>
@@ -239,62 +326,69 @@
             <img src="logo.png" alt="Coin Carrière" class="h-8 md:h-10 object-contain select-none" draggable="false" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
             <span style="display:none" class="font-bold text-xl text-[#0b3f59] font-cairo">COIN <span class="text-[#0094d9]">CARRIÈRE</span></span>
         </div>
-        <button onclick="scrollToForm()" class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full font-bold text-xs md:text-sm text-[#0b3f59] border border-[#0b3f59]/10 bg-[#f8fafc] hover:bg-[#dcfe11] hover:border-[#dcfe11] transition-all duration-300 hover:shadow-lg">
-            <i data-lucide="calendar" class="w-4 h-4"></i>
-            <span class="hidden md:inline">Accès Directeur</span>
-            <span class="md:hidden">Réserver</span>
-        </button>
+        <div class="flex items-center gap-3">
+             <button onclick="scrollToForm()" class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full font-bold text-xs md:text-sm text-[#0b3f59] border border-[#0b3f59]/10 bg-[#f8fafc] hover:bg-[#dcfe11] hover:border-[#dcfe11] transition-all duration-300 hover:shadow-lg">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                <span class="hidden md:inline">دخول المدراء</span>
+                <span class="md:hidden">حجز</span>
+            </button>
+             <a href="index-fr.html" class="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm text-[#0b3f59] bg-white border border-[#0b3f59]/20 hover:border-[#0b3f59] hover:shadow-md transition-all duration-300" title="Français">
+                <i data-lucide="globe" class="w-4 h-4"></i>
+                <span>FR</span>
+            </a>
+        </div>
     </nav>
 
     <!-- HERO SECTION -->
     <section class="pt-28 md:pt-36 pb-12 md:pb-20 px-4 md:px-8 lg:px-12 relative overflow-hidden">
-        <div class="blob bg-[#0094d9]/20 w-[400px] h-[400px] rounded-full top-[-100px] right-[-100px] animate-pulse"></div>
-        <div class="blob bg-[#dcfe11]/30 w-[300px] h-[300px] rounded-full bottom-[0px] left-[-50px]" style="animation-delay: 2s"></div>
+        <!-- Blobs animés -->
+        <div class="blob bg-[#0094d9]/20 w-[400px] h-[400px] rounded-full top-[-100px] left-[-100px] animate-pulse"></div>
+        <div class="blob bg-[#dcfe11]/30 w-[300px] h-[300px] rounded-full bottom-[0px] right-[-50px]" style="animation-delay: 2s"></div>
 
         <div class="max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center gap-8 md:gap-16 relative z-10">
             
             <!-- TEXTE -->
-            <div class="lg:w-5/12 text-left reveal">
+            <div class="lg:w-5/12 text-right reveal">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 mb-6 shadow-sm hover:shadow-md transition-all cursor-default hover:bg-white">
                     <span class="relative flex h-2.5 w-2.5">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0094d9] opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0094d9]"></span>
                     </span>
-                    <span class="text-[10px] md:text-xs font-bold text-[#0b3f59] uppercase tracking-wide">Semaine d'Immersion • 100% En Ligne</span>
+                    <span class="text-[10px] md:text-xs font-bold text-[#0b3f59] uppercase tracking-wide">حدث حصري لمدراء مراكز التكوين والمدارس الخاصة</span>
                 </div>
 
-                <h1 class="text-4xl md:text-5xl lg:text-7xl font-black mb-6 leading-[1.1] text-[#0b3f59] font-cairo drop-shadow-sm">
-                    Ne cherchez plus <br/> vos élèves.<br/>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#0094d9] to-[#0b3f59]">
-                        Attirez-les.
-                    </span>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-[1.3] text-[#0b3f59] font-cairo drop-shadow-sm">
+                    في مؤسستك ... <br/> <span class="text-transparent bg-clip-text bg-gradient-to-l from-[#0094d9] to-[#0b3f59]">بلاصة خاوية = خسارة مباشرة</span>
                 </h1>
                 
-                <p class="text-base md:text-lg text-gray-600 mb-8 font-medium leading-relaxed border-l-4 border-[#dcfe11] pl-5 max-w-lg">
-                    Recrutez un <strong>Media Buyer d'élite</strong> formé spécifiquement pour les centres de formation au Maroc. Accédez à la plateforme et recrutez à votre rythme.
+                <p class="text-base md:text-lg text-gray-600 mb-8 font-medium leading-relaxed border-r-4 border-[#dcfe11] pr-5 max-w-lg">
+                    فهاد Salon d'EmploI ، غادي تلقى لي يجيب ليك تسجيلات مستمرة بلاما تضيع الوقت و الميزانية.
                 </p>
 
                 <button onclick="scrollToForm()" class="pulse-btn w-full md:w-auto px-10 py-5 rounded-2xl text-xl font-bold text-[#0b3f59] bg-[#dcfe11] shadow-[0_10px_30px_rgba(220,254,17,0.4)] hover:shadow-[0_20px_40px_rgba(220,254,17,0.6)] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3 active:scale-95 border-b-4 border-[#b5d30e]">
-                    Réserver ma place
-                    <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                    حجز مكاني الان
+                    <i data-lucide="arrow-left" class="w-6 h-6 rtl-flip"></i>
                 </button>
                 
                 <div class="mt-8 flex items-center gap-3 text-xs md:text-sm font-semibold text-gray-400">
-                    <div class="flex -space-x-2">
+                    <div class="flex -space-x-2 space-x-reverse">
                         <div class="w-8 h-8 rounded-full bg-gray-200 border-2 border-white shadow-sm"></div>
                         <div class="w-8 h-8 rounded-full bg-gray-300 border-2 border-white shadow-sm"></div>
                         <div class="w-8 h-8 rounded-full bg-gray-400 border-2 border-white shadow-sm"></div>
                         <div class="w-8 h-8 rounded-full bg-[#0b3f59] border-2 border-white shadow-sm flex items-center justify-center text-[10px] text-white font-bold">+120</div>
                     </div>
-                    <p class="text-[#0b3f59]/60">Directeurs déjà inscrits</p>
+                    <p class="text-[#0b3f59]/60">مدير مسجل</p>
                 </div>
             </div>
 
-            <!-- VIDEO PLAYER -->
+            <!-- VIDEO PLAYER (Full Control & Smart Detection) -->
             <div class="lg:w-7/12 w-full relative reveal" style="transition-delay: 0.2s">
                 <div class="relative group w-full perspective-1000" id="videoWrapper">
-                    <div class="absolute -inset-1 bg-gradient-to-tr from-[#0094d9] via-[#0b3f59] to-[#dcfe11] rounded-[1.5rem] blur opacity-30 group-hover:opacity-60 transition duration-700 pointer-events-none"></div>
+                    <!-- Glow effect -->
+                    <div class="absolute -inset-1 bg-gradient-to-l from-[#0094d9] via-[#0b3f59] to-[#dcfe11] rounded-[1.5rem] blur opacity-30 group-hover:opacity-60 transition duration-700 pointer-events-none"></div>
+                    
                     <div class="relative rounded-[1.2rem] overflow-hidden shadow-2xl border-[3px] border-white bg-black aspect-video z-10 transform transition-transform duration-500 hover:scale-[1.01]">
+                        <!-- VIDEO TAG -->
                         <video 
                             id="heroVideo" 
                             class="w-full h-full object-cover" 
@@ -305,7 +399,7 @@
                             style="width: 100%; height: 100%;"
                         >
                             <source src="video.mp4" type="video/mp4">
-                            Votre navigateur ne supporte pas la vidéo.
+                            متصفحك لا يدعم تشغيل الفيديو.
                         </video>
                     </div>
                 </div>
@@ -316,9 +410,45 @@
 
     <!-- PARTNERS SCROLL -->
     <section class="py-10 bg-white border-y border-gray-100 overflow-hidden">
-        <p class="text-center text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-[0.3em] mb-8">Partenaires officiels</p>
+        <p class="text-center text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-[0.3em] mb-8">شركاؤنا الرسميون</p>
         <div class="slider">
             <div class="slide-track" id="partnersTrack"></div>
+        </div>
+    </section>
+
+    <!-- WHO IS THIS FOR SECTION (ADDED) -->
+    <section class="py-24 px-4 bg-white relative">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                 <h2 class="text-3xl md:text-4xl font-bold font-cairo text-[#0b3f59]">هاد الحدث مناسب ليك إلا كنتي:</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-[#dcfe11] hover:bg-white hover:shadow-lg transition-all reveal">
+                    <div class="bg-red-100 p-2 rounded-lg text-red-500 mt-1 shrink-0"><i data-lucide="x-circle" class="w-6 h-6"></i></div>
+                    <p class="text-lg font-medium text-gray-700 leading-relaxed">عندك تكوين واعر… ولكن التلاميذ قلال</p>
+                </div>
+                
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-[#dcfe11] hover:bg-white hover:shadow-lg transition-all reveal" style="transition-delay: 100ms;">
+                     <div class="bg-red-100 p-2 rounded-lg text-red-500 mt-1 shrink-0"><i data-lucide="x-circle" class="w-6 h-6"></i></div>
+                    <p class="text-lg font-medium text-gray-700 leading-relaxed">عييتي من جملة "نفكر و نرجع ليك" اللي كتسمعها كل نهار  بلا فايدة.</p>
+                </div>
+
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-[#dcfe11] hover:bg-white hover:shadow-lg transition-all reveal" style="transition-delay: 200ms;">
+                     <div class="bg-red-100 p-2 rounded-lg text-red-500 mt-1 shrink-0"><i data-lucide="alert-circle" class="w-6 h-6"></i></div>
+                    <p class="text-lg font-medium text-gray-700 leading-relaxed">كتحس بالي المنافسين ديالك فايتينك، وخا نتا عندك كاليتي حسن منهم.</p>
+                </div>
+
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-[#dcfe11] hover:bg-white hover:shadow-lg transition-all reveal" style="transition-delay: 300ms;">
+                     <div class="bg-red-100 p-2 rounded-lg text-red-500 mt-1 shrink-0"><i data-lucide="trending-down" class="w-6 h-6"></i></div>
+                    <p class="text-lg font-medium text-gray-700 leading-relaxed">كتخسر ميزانية صحيحة فالإشهار و النتيجة هي ناس غير كيسولو.</p>
+                </div>
+
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-[#0b3f59]/5 border border-[#0b3f59]/10 hover:border-[#dcfe11] hover:bg-white hover:shadow-lg transition-all reveal" style="transition-delay: 400ms;">
+                     <div class="bg-[#dcfe11] p-2 rounded-lg text-[#0b3f59] mt-1 shrink-0"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+                    <p class="text-xl font-bold text-[#0b3f59] leading-relaxed">باغي نظام يجبد تسجيلات أوتوماتيكياً كل شهر.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -326,8 +456,8 @@
     <section class="py-24 px-4 bg-white/50 backdrop-blur-lg">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16 reveal">
-                <span class="text-[#0094d9] font-bold tracking-widest uppercase text-xs border border-[#0094d9]/20 px-3 py-1 rounded-full bg-blue-50">Le Secret de la Croissance</span>
-                <h2 class="text-3xl md:text-5xl font-bold font-cairo text-[#0b3f59] mt-4">Pourquoi un <span class="text-[#0094d9]">Media Buyer Expert</span> ?</h2>
+                <span class="text-[#0094d9] font-bold tracking-widest uppercase text-xs border border-[#0094d9]/20 px-3 py-1 rounded-full bg-blue-50">تكسير المعتقدات 🧠</span>
+                <h2 class="text-3xl md:text-5xl font-bold font-cairo text-[#0b3f59] mt-4">علاش خاصك محترف فالاعلانات الرقمية ؟</h2>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -335,32 +465,32 @@
                     <div class="mb-6 bg-white/10 w-14 h-14 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-[#dcfe11] transition-colors shadow-lg">
                         <i data-lucide="target" class="text-[#dcfe11] w-7 h-7"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-cairo">Ciblage Laser</h3>
-                    <p class="text-gray-300 text-sm leading-relaxed">Touchez uniquement les parents qui cherchent activement.</p>
+                    <h3 class="text-xl font-bold mb-3 font-cairo">استهداف قناص (Laser)</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">ماتبقاش تضيع فلوسك على "J'aime" واللايكات. الخبراء ديالنا كيجيبو آباء وتلاميذ واجدين يخلصو.</p>
                 </div>
                 
                 <div class="magic-card bg-[#0b3f59] p-8 rounded-3xl text-white relative group reveal" style="transition-delay: 100ms;">
                     <div class="mb-6 bg-white/10 w-14 h-14 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-[#dcfe11] transition-colors shadow-lg">
                         <i data-lucide="bar-chart-3" class="text-[#dcfe11] w-7 h-7"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-cairo">Coûts Réduits</h3>
-                    <p class="text-gray-300 text-sm leading-relaxed">Baissez votre coût par inscription (CPL) drastiquement.</p>
+                    <h3 class="text-xl font-bold mb-3 font-cairo">كل درهم كيرجع ربح</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">الميديا باير المحترف ماشي "Charge"، هو "Investissement". مهمتو هي ينقص عليك مصاريف الإشهار ويضاعف عدد المسجلين.</p>
                 </div>
                 
                 <div class="magic-card bg-[#0b3f59] p-8 rounded-3xl text-white relative group reveal" style="transition-delay: 200ms;">
                     <div class="mb-6 bg-white/10 w-14 h-14 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-[#dcfe11] transition-colors shadow-lg">
-                        <i data-lucide="zap" class="text-[#dcfe11] w-7 h-7"></i>
+                        <i data-lucide="trending-up" class="text-[#dcfe11] w-7 h-7"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-cairo">Scalabilité</h3>
-                    <p class="text-gray-300 text-sm leading-relaxed">Ouvrez les vannes pour remplir une classe sur commande.</p>
+                    <h3 class="text-xl font-bold mb-3 font-cairo">عمر الأقسام "بالكوموند"</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">خاصك 20 تلميذ الاثنين الجاي؟ الخبير ديالك عارف السيستم اللي يجيبهم ليك فالوقت.</p>
                 </div>
                 
                 <div class="magic-card bg-[#0b3f59] p-8 rounded-3xl text-white relative group reveal" style="transition-delay: 300ms;">
                     <div class="mb-6 bg-white/10 w-14 h-14 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-[#dcfe11] transition-colors shadow-lg">
-                        <i data-lucide="lock" class="text-[#dcfe11] w-7 h-7"></i>
+                        <i data-lucide="shield-check" class="text-[#dcfe11] w-7 h-7"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-cairo">Exclusivité</h3>
-                    <p class="text-gray-300 text-sm leading-relaxed">Experts formés pour travailler avec l'élite.</p>
+                    <h3 class="text-xl font-bold mb-3 font-cairo">كفاءات جاهزة للقتال</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">ماشي متدربين عاد كيتعلمو فيك. هادو محترفين دازو من تكوين طويل و مكثف , ومدربين على استراتيجيات حديثة.</p>
                 </div>
             </div>
         </div>
@@ -368,22 +498,23 @@
 
     <!-- URGENCY SECTION -->
     <section class="py-20 px-4 relative overflow-hidden">
-        <div class="max-w-4xl mx-auto bg-gradient-to-br from-[#dcfe11] to-[#ccee0e] rounded-[3rem] p-10 md:p-16 text-center relative shadow-[0_30px_60px_rgba(200,254,17,0.3)] reveal transform hover:scale-[1.01] transition-transform duration-500">
-            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 translate-x-[-150%] animate-shine"></div>
+        <div class="max-w-4xl mx-auto bg-gradient-to-bl from-[#dcfe11] to-[#ccee0e] rounded-[3rem] p-10 md:p-16 text-center relative shadow-[0_30px_60px_rgba(200,254,17,0.3)] reveal transform hover:scale-[1.01] transition-transform duration-500">
+            <!-- Shine effect -->
+            <div class="absolute inset-0 bg-gradient-to-l from-transparent via-white/30 to-transparent skew-x-12 translate-x-[-150%] animate-shine"></div>
             
             <div class="relative z-10">
                 <div class="inline-flex items-center gap-2 bg-[#0b3f59] text-white px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider mb-6 shadow-md">
-                    <i data-lucide="alert-triangle" class="w-3 h-3 text-[#dcfe11]"></i> Attention
+                    <i data-lucide="alert-triangle" class="w-3 h-3 text-[#dcfe11]"></i> تحذير هام
                 </div>
                 <h2 class="text-3xl md:text-5xl font-black text-[#0b3f59] font-cairo mb-6 leading-tight">
-                    Opportunité de Recrutement.
+                    اللي كيتردد… كيضيع الفرص!
                 </h2>
                 <p class="text-[#0b3f59]/80 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10">
-                    Ne laissez pas vos concurrents prendre les meilleurs talents. Digitalisez votre acquisition maintenant.
+                    مركز آخر فمدينتك يمكن دابا كيسني مع ميديا باير اللي غادي يطيّر ليه بالمركز دبالو للفوق ويعمر الأقسام قبلك. السوق ما كيرحمش... يا إمّا تكون سبّاق، يا إمّا كتفرج فالفرص كيدوزو قدّامك.
                 </p>
                 <button onclick="scrollToForm()" class="bg-[#0b3f59] text-white px-10 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-transform shadow-2xl flex items-center justify-center gap-2 mx-auto">
-                    Sécuriser l'avenir de mon centre
-                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    🔥 بغيت نكون السبّاق
+                    <i data-lucide="arrow-left" class="w-5 h-5 rtl-flip"></i>
                 </button>
             </div>
         </div>
@@ -395,27 +526,27 @@
 
         <div class="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-16">
             <div class="md:w-1/2 reveal">
-                <span class="text-[#dcfe11] font-bold tracking-widest uppercase text-xs mb-3 block">Le Concept</span>
+                <span class="text-[#dcfe11] font-bold tracking-widest uppercase text-xs mb-3 block">المفهوم</span>
                 <h2 class="text-4xl md:text-6xl font-bold font-cairo mb-8 leading-tight">
-                    Une Semaine pour <br/><span class="text-[#dcfe11] glow-text">Tout Changer.</span>
+                    سيمانة وحدة <br/><span class="text-[#dcfe11] glow-text">باش تبدل كلشي.</span>
                 </h2>
                 <p class="text-blue-100 text-lg md:text-xl mb-10 leading-relaxed">
-                    Accédez à notre <strong>Plateforme de Recrutement Privée</strong>. Connectez-vous quand vous voulez, planifiez des meetings et recrutez votre expert.
+                    دخل لمنصة التوظيف الخاصة ديالنا. تكونيكطا وقتما بغيتي، خود مواعيد ووظف الخبير ديالك.
                 </p>
                 
                 <div class="space-y-5">
                     <div class="flex gap-5 items-start p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-default backdrop-blur-sm">
                         <div class="bg-[#dcfe11] p-3 rounded-xl text-[#0b3f59] shrink-0 shadow-[0_0_15px_rgba(220,254,17,0.3)]"><i data-lucide="users" class="w-6 h-6"></i></div>
                         <div>
-                            <h4 class="font-bold text-lg">Liberté Totale</h4>
-                            <p class="text-sm text-gray-300 mt-1">Plateforme ouverte 24h/24. C'est vous qui décidez.</p>
+                            <h4 class="font-bold text-lg">حرية تامة</h4>
+                            <p class="text-sm text-gray-300 mt-1">المنصة محلولة وخدّامة 24/24. نتا مول القرار.</p>
                         </div>
                     </div>
                     <div class="flex gap-5 items-start p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-default backdrop-blur-sm">
                         <div class="bg-[#dcfe11] p-3 rounded-xl text-[#0b3f59] shrink-0 shadow-[0_0_15px_rgba(220,254,17,0.3)]"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
                         <div>
-                            <h4 class="font-bold text-lg">Qualité Certifiée</h4>
-                            <p class="text-sm text-gray-300 mt-1">Uniquement les meilleurs profils pré-sélectionnés.</p>
+                            <h4 class="font-bold text-lg">جودة مضمونة</h4>
+                            <p class="text-sm text-gray-300 mt-1">كاين غير "لي بروفايل" المجهدين اللي تختارو بعناية.</p>
                         </div>
                     </div>
                 </div>
@@ -425,27 +556,27 @@
                 <div class="bg-gradient-to-b from-white/10 to-transparent backdrop-blur-md border border-white/20 p-8 rounded-[2.5rem] relative shadow-2xl">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-[#dcfe11] rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
                     
-                    <h3 class="text-2xl font-bold mb-8 font-cairo border-b border-white/10 pb-6">Programme Flexible :</h3>
+                    <h3 class="text-2xl font-bold mb-8 font-cairo border-b border-white/10 pb-6">برنامج فليكسيبل :</h3>
                     <ul class="space-y-8">
                         <li class="flex gap-5 items-center group">
                             <span class="w-12 h-12 rounded-full bg-[#0094d9] flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform shadow-lg"><i data-lucide="globe" class="w-6 h-6"></i></span>
                             <div>
-                                <p class="font-bold text-[#dcfe11] text-base">Accès 24/7</p>
-                                <p class="text-sm text-gray-300">Connectez-vous quand vous voulez.</p>
+                                <p class="font-bold text-[#dcfe11] text-base">دخول 24/7 (Accès 24/7)</p>
+                                <p class="text-sm text-gray-300">تكونيكطا فالوقيتة لي مسلكاك.</p>
                             </div>
                         </li>
                         <li class="flex gap-5 items-center group">
                             <span class="w-12 h-12 rounded-full bg-[#0094d9] flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform shadow-lg"><i data-lucide="mouse-pointer-2" class="w-6 h-6"></i></span>
                             <div>
-                                <p class="font-bold text-[#dcfe11] text-base">Networking</p>
-                                <p class="text-sm text-gray-300">Envoyez des demandes de meeting.</p>
+                                <p class="font-bold text-[#dcfe11] text-base">النيتووركينغ</p>
+                                <p class="text-sm text-gray-300">صيفط طلبات ديال الميتينغ.</p>
                             </div>
                         </li>
                         <li class="flex gap-5 items-center group">
                             <span class="w-12 h-12 rounded-full bg-[#0094d9] flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform shadow-lg"><i data-lucide="check-circle" class="w-6 h-6"></i></span>
                             <div>
-                                <p class="font-bold text-[#dcfe11] text-base">Recrutement</p>
-                                <p class="text-sm text-gray-300">Validez votre collaboration en un clic.</p>
+                                <p class="font-bold text-[#dcfe11] text-base">التوظيف</p>
+                                <p class="text-sm text-gray-300">فاليدي الكولابوراسيون ديالك بكليك واحد.</p>
                             </div>
                         </li>
                     </ul>
@@ -463,51 +594,55 @@
                 <div class="md:w-1/2 bg-[#0b3f59] p-10 md:p-14 text-white relative overflow-hidden flex flex-col justify-between">
                     <div class="blob bg-[#0094d9] w-80 h-80 rounded-full top-[-50px] left-[-50px] opacity-40 animate-pulse"></div>
                     <div class="relative z-10">
-                        <h3 class="text-3xl md:text-4xl font-bold font-cairo mb-6">Réservez votre Pass.</h3>
-                        <p class="text-gray-300 mb-10 text-base md:text-lg">Rejoignez +120 directeurs qui transforment leur business dès aujourd'hui.</p>
+                        <h3 class="text-3xl md:text-4xl font-bold font-cairo mb-6">أقسام عامرة طيلة السنة.. كتبدا من هاد الاستمارة.</h3>
+                        <p class="text-gray-300 mb-10 text-base md:text-lg">"انضم لأكثر من 120 مدير مركز اختاروا الاحترافية. الدخول للمنصة مجاني 100% للمدراء (بدون بطاقة بنكية)."</p>
                         
                         <div class="space-y-5">
                             <div class="flex items-center gap-5 bg-white/10 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
                                 <div class="bg-[#dcfe11] p-2.5 rounded-xl text-[#0b3f59]"><i data-lucide="clock" class="w-6 h-6"></i></div>
-                                <div><p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Validité</p><p class="font-bold text-base">Accès illimité toute la semaine</p></div>
+                                <div><p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">الصلاحية</p><p class="font-bold text-base">دخول غير محدود طوال الأسبوع</p></div>
                             </div>
                             <div class="flex items-center gap-5 bg-white/10 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
                                 <div class="bg-[#0094d9] p-2.5 rounded-xl text-white"><i data-lucide="globe" class="w-6 h-6"></i></div>
-                                <div><p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Lieu</p><p class="font-bold text-base">Plateforme Coin Carrière</p></div>
+                                <div><p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">المكان</p><p class="font-bold text-base">منصة Coin Carrière</p></div>
                             </div>
                         </div>
                     </div>
                     <div class="mt-12 relative z-10">
-                        <div class="flex items-center gap-2 mb-3"><span class="text-xs font-bold text-[#dcfe11] uppercase tracking-wide">Dernières places</span></div>
+                        <div class="flex items-center gap-2 mb-3"><span class="text-xs font-bold text-[#dcfe11] uppercase tracking-wide">أماكن أخيرة</span></div>
                         <div class="w-full bg-[#0094d9]/30 h-2 rounded-full overflow-hidden"><div class="bg-[#dcfe11] h-full w-[92%] shadow-[0_0_15px_#dcfe11]"></div></div>
-                        <p class="text-right text-[10px] text-gray-400 mt-2">92% complet</p>
+                        <p class="text-left text-[10px] text-gray-400 mt-2">92% ممتلئ</p>
                     </div>
                 </div>
 
                 <!-- Main Form (Aussi surveillé par le détecteur d'activité) -->
                 <div class="md:w-1/2 p-10 md:p-14 bg-white relative">
                     <form id="mainForm" onsubmit="handleFormSubmit(event)" class="space-y-5 popup-form-monitor">
-                        <!-- Advanced Matching Hidden Fields -->
-                        <input type="hidden" name="fbp" />
-                        <input type="hidden" name="fbc" />
-                        <input type="hidden" name="user_agent" />
-                        <input type="hidden" name="ip_address" />
-                        <input type="hidden" name="lead_submitted_at" />
-                        <input type="hidden" name="field_source" value="Facebook" />
+                        <!-- CHAMPS CACHÉS (Stricts IDs requis pour le script de tracking) -->
+                        <input type="hidden" id="field_ip" name="field_ip" />
+                        <input type="hidden" id="field_city" name="field_city" />
+                        <input type="hidden" id="field_country" name="field_country" />
+                        <input type="hidden" id="field_device" name="field_device" />
+                        <input type="hidden" id="clarity_link" name="clarity_link" />
+                        <input type="hidden" id="field_source" name="field_source" value="Facebook" />
 
-                        <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom Complet *">
-                        <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Nom du Centre *">
+                        <!-- NEW HIDDEN FIELDS FOR COOKIES -->
+                        <input type="hidden" name="fbp" id="fbp" />
+                        <input type="hidden" name="fbc" id="fbc" />
+
+                        <input type="text" name="fullName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="الاسم الكامل *">
+                        <input type="text" name="centerName" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="اسم المركز *">
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" name="city" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Ville *">
-                            <input type="tel" name="phone" required pattern="^(05|06|07)[0-9]{8}$" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Tél (06...) *">
+                            <input type="text" name="city" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="المدينة *">
+                            <input type="tel" name="phone" required pattern="^(05|06|07)[0-9]{8}$" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400 text-right" placeholder="الهاتف (06...)*" title="تنسيق صالح: 0612345678" dir="ltr">
                         </div>
-                        <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400" placeholder="Email Professionnel *">
+                        <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-6 text-[#0b3f59] text-sm font-semibold focus:outline-none focus:border-[#0094d9] focus:ring-4 focus:ring-[#0094d9]/10 transition-all placeholder-gray-400 text-right" placeholder="البريد الإلكتروني المهني *" dir="ltr">
 
                         <button type="submit" class="pulse-btn w-full mt-6 py-5 rounded-xl text-lg font-bold text-[#0b3f59] bg-[#dcfe11] hover:bg-[#ccee0e] shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
-                            Je valide mon accès gratuit
-                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                            حجز مكاني الان مجاناً
+                            <i data-lucide="arrow-left" class="w-5 h-5 rtl-flip"></i>
                         </button>
-                        <p class="text-[10px] text-center text-gray-400 mt-4 flex items-center justify-center gap-1 opacity-70"><i data-lucide="shield-check" class="w-3 h-3"></i> Données sécurisées.</p>
+                        <p class="text-[10px] text-center text-gray-400 mt-4 flex items-center justify-center gap-1 opacity-70"><i data-lucide="shield-check" class="w-3 h-3"></i> بياناتك آمنة 100%.</p>
                     </form>
                 </div>
             </div>
@@ -517,7 +652,7 @@
     <!-- FAQ SECTION -->
     <section class="py-24 px-4 bg-white">
         <div class="max-w-3xl mx-auto reveal">
-            <h2 class="text-3xl font-bold text-center mb-12 font-cairo text-[#0b3f59]">Questions Fréquentes</h2>
+            <h2 class="text-3xl font-bold text-center mb-12 font-cairo text-[#0b3f59]">الأسئلة الشائعة</h2>
             <div class="space-y-4" id="faq-container">
                 <!-- FAQ Items injectés via JS -->
             </div>
@@ -527,7 +662,7 @@
     <!-- FOOTER -->
     <footer class="py-12 bg-[#0b3f59] text-white/60 text-center border-t border-white/10">
         <div class="flex justify-center mb-6 opacity-50 hover:opacity-100 transition-opacity"><img src="logo.png" alt="logo" class="h-8 brightness-0 invert" onerror="this.style.display='none'"></div>
-        <p class="text-xs font-medium tracking-wide">&copy; 2024 Coin Carrière. Tous droits réservés.</p>
+        <p class="text-xs font-medium tracking-wide">&copy; 2024 Coin Carrière. جميع الحقوق محفوظة.</p>
     </footer>
 
     <!-- VIEW: CONFIRMATION (Simulée pour la démo, Cachée par défaut) -->
@@ -539,16 +674,16 @@
             <div class="w-24 h-24 bg-[#dcfe11]/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
                 <i data-lucide="check-circle" class="w-12 h-12 text-[#0b3f59]"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0b3f59] mb-6 font-cairo">Félicitations ! 🎉</h1>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0b3f59] mb-6 font-cairo">تم التسجيل بنجاح! 🎉</h1>
             <p class="text-gray-600 mb-10 text-lg leading-relaxed font-medium">
-                Votre pré-inscription est validée. Vous recevrez très bientôt vos identifiants d'accès à la plateforme privée.
+                تم تأكيد تسجيلك الأولي. ستتوصل قريباً بمعلومات الدخول إلى المنصة الخاصة عبر بريدك الإلكتروني.
             </p>
-            <div class="bg-blue-50 p-5 rounded-2xl mb-10 text-sm text-[#0b3f59] font-semibold flex items-center gap-4 text-left border border-blue-100">
+            <div class="bg-blue-50 p-5 rounded-2xl mb-10 text-sm text-[#0b3f59] font-semibold flex items-center gap-4 text-right border border-blue-100">
                 <div class="bg-white p-2 rounded-full shadow-sm"><i data-lucide="mail" class="w-5 h-5 shrink-0 text-[#0094d9]"></i></div>
-                <span>Vérifiez vos emails (et spams). L'aventure commence.</span>
+                <span>يرجى التحقق من بريدك الإلكتروني (بما في ذلك الرسائل غير المرغوب فيها Spam). المغامرة تبدأ قريباً.</span>
             </div>
             <button onclick="location.reload()" class="w-full py-5 px-6 rounded-xl font-bold text-[#0b3f59] text-lg hover:shadow-xl bg-[#dcfe11] transition-all transform hover:-translate-y-1 active:scale-95">
-                Retour à l'accueil
+                العودة إلى الرئيسية
             </button>
         </div>
     </div>
@@ -592,8 +727,9 @@
         let isVideoPlaying = false;
         let isFormActive = false;
         let popupInterval;
-        let hasPopupShown = false; 
+        let hasPopupShown = false; // Nouvelle variable pour limiter à 1 fois
 
+        // Detecter l'état de la vidéo
         const videoElement = document.getElementById('heroVideo');
         if (videoElement) {
             videoElement.addEventListener('play', () => { isVideoPlaying = true; });
@@ -601,11 +737,14 @@
             videoElement.addEventListener('ended', () => { isVideoPlaying = false; });
         }
 
+        // Detecter l'activité sur les formulaires (Tous les inputs avec la classe .popup-form-monitor)
         const formInputs = document.querySelectorAll('.popup-form-monitor input');
         formInputs.forEach(input => {
             input.addEventListener('focus', () => { isFormActive = true; });
             input.addEventListener('blur', () => { 
+                // Petit délai pour permettre le changement de champ sans trigger le popup
                 setTimeout(() => { 
+                    // Vérifie si un autre élément du formulaire a le focus
                     if (!document.activeElement.closest('form')) {
                         isFormActive = false; 
                     }
@@ -613,18 +752,30 @@
             });
         });
 
-        // Fonction de vérification du Popup
+        // Fonction de vérification du Popup (Toutes les 45s maintenant au lieu de 15s)
         function startPopupTimer() {
             popupInterval = setInterval(() => {
+                // Conditions pour afficher le popup :
+                // 1. Pas de vidéo en cours
+                // 2. Pas en train d'écrire dans un formulaire
+                // 3. Popup pas déjà affiché
+                // 4. Pas sur la page de confirmation (si simulée)
+                // 5. N'a JAMAIS été affiché auparavant (hasPopupShown)
                 const popup = document.getElementById('popup');
-                if (!popup) return;
+                const confirmationView = document.getElementById('confirmation-view');
+                
+                // Safe checks
+                if (!popup || !confirmationView) return;
+
+                const isConfirmationVisible = !confirmationView.classList.contains('hidden');
                 const isPopupVisible = popup.classList.contains('opacity-100');
-                if (!isVideoPlaying && !isFormActive && !isPopupVisible && !hasPopupShown) {
+
+                if (!isVideoPlaying && !isFormActive && !isPopupVisible && !isConfirmationVisible && !hasPopupShown) {
                     openPopup();
-                    hasPopupShown = true; 
-                    clearInterval(popupInterval);
+                    hasPopupShown = true; // Marquer comme affiché
+                    clearInterval(popupInterval); // Arrêter le timer définitivement pour ne plus déranger
                 }
-            }, 45000); 
+            }, 45000); // 45 secondes (Augmenté pour être moins intrusif)
         }
 
         function openPopup() {
@@ -642,76 +793,109 @@
                 popup.classList.add('opacity-0', 'invisible', 'pointer-events-none');
                 popup.classList.remove('opacity-100', 'visible');
             }
+            // On ne relance PAS le timer ici, c'est fini pour cette session.
         }
 
+        // Démarrer le timer au chargement
         startPopupTimer();
 
-        // COOKIE HELPER
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-            return null;
-        }
 
-        // AUTO-FILL DATA ON LOAD
-        document.addEventListener("DOMContentLoaded", () => {
-            // 1. IP & Location (via API)
-             fetch("https://ipwho.is/")
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                   document.querySelectorAll('input[name="ip_address"]').forEach(el => el.value = data.ip);
-                }
-            })
-            .catch(err => console.warn("IP fetch skipped"));
-
-            // 2. Facebook Cookies
-            const fbp = getCookie('_fbp');
-            const fbc = getCookie('_fbc');
-            if(fbp) document.querySelectorAll('input[name="fbp"]').forEach(el => el.value = fbp);
-            if(fbc) document.querySelectorAll('input[name="fbc"]').forEach(el => el.value = fbc);
-
-            // 3. User Agent
-            document.querySelectorAll('input[name="user_agent"]').forEach(el => el.value = navigator.userAgent);
-        });
-
-        // Form Handling
+        // Form Handling with Webhook & Redirect Logic
         function handleFormSubmit(e) {
             e.preventDefault();
             
+            // 1. CRITICAL: Trigger Clarity Session Capture NOW
+            captureClaritySession();
+
             const form = e.target;
             const btn = form.querySelector('button[type="submit"]');
             
             // Loading State
-            btn.innerHTML = 'Traitement en cours...';
+            btn.innerHTML = 'جاري المعالجة...';
             btn.disabled = true;
 
-            // Set Submission Time
-            const dateInput = form.querySelector('input[name="lead_submitted_at"]');
-            if(dateInput) dateInput.value = new Date().toISOString();
-
-            // Prepare Data
+            // 2. Prepare Data for Webhook
             const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+            const data = {
+                fullName: formData.get('fullName'),
+                businessName: formData.get('centerName'),
+                city: formData.get('city'),
+                whatsappPhone: formData.get('phone'),
+                email: formData.get('email'),
+                source: "Landing Page",
+                ip: document.getElementById('field_ip')?.value || '',
+                city_geo: document.getElementById('field_city')?.value || '',
+                country: document.getElementById('field_country')?.value || '',
+                device: document.getElementById('field_device')?.value || '',
+                clarity_url: document.getElementById('clarity_link')?.value || 'Not captured',
+                traffic_source: document.getElementById('field_source')?.value || 'Facebook',
+                // New Clarity Field
+                clarity_link: document.getElementById('clarity_link')?.value || 'Not captured'
+            };
 
-            // Send to Make.com
+            // 3. Send to Make.com Webhook
             fetch('https://hook.eu1.make.com/5orxv4r7zakxnr2ec0vmjw2py5n7p47j', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify(data)
             })
             .then(res => {
-                if (res.ok) console.log('Lead sent successfully');
-                else console.warn('Webhook error:', res.status);
+                if (res.ok) {
+                    console.log('Lead sent successfully');
+                } else {
+                    console.warn('Webhook returned error:', res.status);
+                }
             })
-            .catch(err => console.warn('Webhook unreachable:', err))
+            .catch(err => {
+                console.warn('Webhook unreachable (CORS/Adblock):', err);
+            })
             .finally(() => {
-                // Redirect to Thank You Page
+                // 4. Redirection (After short delay)
                 setTimeout(() => {
-                    window.location.href = "thankyou.html";
+                    // --- VERSION PREVIEW (TEST MODE) ---
+                    const landingView = document.getElementById('landing-view');
+                    const confirmationView = document.getElementById('confirmation-view');
+                    if (landingView && confirmationView) {
+                        landingView.classList.add('hidden');
+                        confirmationView.classList.remove('hidden');
+                    }
+                    window.scrollTo(0, 0);
+
+                    // --- VERSION PRODUCTION (POUR VOTRE SITE REEL) ---
+                    // Supprimez les 6 lignes ci-dessus et décommentez la ligne ci-dessous :
+                    // window.location.href = "thankyou.html";
                 }, 1000);
             });
+        }
+
+        // --- CLARITY SESSION CAPTURE FUNCTION ---
+        function captureClaritySession() {
+            try {
+                var sessionLink = 'Not captured';
+                if (typeof clarity === 'function' && clarity.details && clarity.details.sessionId) {
+                    var projectId = "ugwltzryfu";
+                    sessionLink = "https://clarity.microsoft.com/projects/" + projectId + "/recordings/" + clarity.details.sessionId;
+                }
+                
+                // Update all fields with this name (handling both forms)
+                var fields = document.querySelectorAll('input[name="clarity_link"]');
+                fields.forEach(function(field) {
+                    field.value = sessionLink;
+                });
+                
+                // Update specific ID field if present
+                if(document.getElementById("clarity_link")) {
+                     document.getElementById("clarity_link").value = sessionLink;
+                }
+
+                // console.log("Clarity Session Captured:", sessionLink);
+                return sessionLink;
+            } catch (e) {
+                // console.warn("Clarity capture failed", e);
+                return 'Not captured';
+            }
         }
 
         // Generate Partners
@@ -725,6 +909,7 @@
         
         const track = document.getElementById('partnersTrack');
         const generateSlides = () => {
+            // Duplicate multiple times for smooth infinite scroll
             for(let i=0; i<4; i++) {
                 partners.forEach(p => {
                     const div = document.createElement('div');
@@ -738,16 +923,16 @@
                     track.appendChild(div);
                 });
             }
-            lucide.createIcons();
+            lucide.createIcons(); // Re-run icons for dynamic content
         }
-        if (track) generateSlides();
+        generateSlides();
 
         // FAQ Generation
         const faqs = [
-            { q: "Je suis très occupé, suis-je obligé d'être là tout le temps ?", a: "Non, absolument pas. La plateforme est ouverte 24/7 pendant une semaine. Vous vous connectez quand vous avez 15 minutes de libre." },
-            { q: "Pourquoi devrais-je recruter un Media Buyer ?", a: "Parce que le 'boost' Facebook ne suffit plus. Un expert dédié baisse vos coûts d'acquisition et vous garantit des classes pleines." },
-            { q: "Est-ce que je dois payer le Media Buyer ?", a: "L'événement est gratuit. Si vous décidez de recruter un expert, vous négocierez directement avec lui ses honoraires." },
-            { q: "Comment se passent les meetings ?", a: "Tout se passe sur la plateforme Coin Carrière ou via Google Meet/Zoom une fois le contact établi." }
+            { q: "س: واش ضروري نكون حاضر ديما فالمنصة؟", a: "ج: لا، المنصة محلولة 24/7 طيلة أيام الحدث. دخل فالوقت اللي مسالي فيه، قلب على المرشحين، وصيفط ليهم طلبات لقاء." },
+            { q: "س: عندي ديجا Agence شادة ليا، علاش نبدلها؟", a: "ج: الاجونس عندها 50 كليان، وكيعطيوك 'وقت شايط'. الميديا باير ديالك غايكون مركز 100% غير معاك نتا، وكيفكر فمشروعك ليل ونهار." },
+            { q: "س: واش هاد الميديا بايرز غاليين؟", a: "ج: نتا ومقدرتك وشطارتك. كاينين بروفايلات لكل الميزانيات." },
+            { q: "س: كيفاش نضمن بلي هاد الناس كفاءة؟", a: "ج: حنا درنا ليك الفلتر الأول ودربناهم على استراتيجيات خاصة بالمراكز. الباقي عليك نتا فالـ Interview." }
         ];
 
         const faqContainer = document.getElementById('faq-container');
@@ -756,12 +941,12 @@
                 const div = document.createElement('div');
                 div.className = 'faq-item border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 hover:bg-white transition-all duration-300 cursor-pointer hover:shadow-md group';
                 div.innerHTML = `
-                    <button class="w-full p-6 flex justify-between items-center text-left" onclick="toggleFaq(this)">
-                        <span class="font-bold text-[#0b3f59] pr-4 text-lg group-hover:text-[#0094d9] transition-colors">${item.q}</span>
+                    <button class="w-full p-6 flex justify-between items-center text-right" onclick="toggleFaq(this)">
+                        <span class="font-bold text-[#0b3f59] pl-4 text-lg group-hover:text-[#0094d9] transition-colors">${item.q}</span>
                         <i data-lucide="chevron-down" class="faq-icon w-6 h-6 text-gray-400 group-hover:text-[#dcfe11]"></i>
                     </button>
                     <div class="faq-content bg-white">
-                        <div class="p-6 pt-0 text-gray-600 border-t border-gray-100/50 leading-relaxed">
+                        <div class="p-6 pt-0 text-gray-600 border-t border-gray-100/50 leading-relaxed text-right">
                             <p class="mt-4">${item.a}</p>
                         </div>
                     </div>
@@ -774,16 +959,19 @@
             const item = btn.parentElement;
             const isActive = item.classList.contains('active');
             
+            // Close all
             document.querySelectorAll('.faq-item').forEach(el => {
                 el.classList.remove('active');
             });
 
+            // Toggle clicked
             if (!isActive) {
                 item.classList.add('active');
             }
             lucide.createIcons();
         }
         
+        // Re-run icons one last time to be sure
         lucide.createIcons();
     </script>
 </body>
